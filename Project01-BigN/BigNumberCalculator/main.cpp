@@ -7,7 +7,8 @@
 #include "BigN.h"
 
 int main() {
-
+	BigN calc;
+	calc.processInput("1 + 2 + 3");
 
 	return 0;
 }

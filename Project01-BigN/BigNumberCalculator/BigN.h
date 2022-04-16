@@ -10,7 +10,7 @@
 typedef struct {
 	string dataType; //跑计篈
 	string name; //跑计嘿
-	int value; //计
+	int value; //计	
 }Variable;
 
 class BigN{
@@ -20,7 +20,7 @@ public:
 	//...
 
 private:
-	stack<int> number; //纗计(既﹚)
+	stack<string> number; //纗计(既﹚)
 	stack<char> sign; //纗才腹
 	vector<Variable> list; //纗璹跑计
 };
