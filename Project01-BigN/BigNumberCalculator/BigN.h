@@ -1,6 +1,6 @@
 // File: BigN.h
 // Creator: Yu-chen Kuo
-// Last Update: 2022/04/15
+// Last Update: 2022/04/17
 
 //class定義區塊
 
@@ -15,13 +15,15 @@ typedef struct {
 
 class BigN{
 public:
-	void processInput(string _in); //分析輸入算式
+	//void processInput(string _in); //分析輸入算式
 	void storeVariale(string _in); //儲存變數型態資料
+	void countValue(string _in); //計算算式(傳入為中序式)
+	void setValue(string _in); //設定變數
 	//...
 
 private:
-	stack<string> number; //儲存數字(暫定)
-	stack<char> sign; //儲存符號
+	//stack<string> number; //儲存數字(暫定)
+	//stack<char> sign; //儲存符號
 	vector<Variable> list; //儲存自訂變數
 };
 

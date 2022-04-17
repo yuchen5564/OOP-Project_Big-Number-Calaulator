@@ -21,6 +21,9 @@
     <ClCompile Include="BigN.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
+    <ClCompile Include="Header.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BigN.h">
