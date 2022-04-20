@@ -1,6 +1,6 @@
 // File: Header.h
 // Creator: Yu-chen Kuo
-// Last Update: 2022/04/17
+// Last Update: 2022/04/20
 
 //纗ㄧ计
 
@@ -21,16 +21,17 @@ int sign(string _in) {
 }
 
 string infix2posfix(string _infix) {
-	cout << _infix << endl;
+	//if (_infix == "") return "";
 	istringstream in(_infix);
+	stack<string> postfix;
 	stack<string> tmp; //既笲衡じ
 	string s;
-	string result = {};
 	while (in >> s) {
 		switch (sign(s)) {
 		case 2:case 3: case 4: case 5:
 			while (!tmp.empty() && sign(tmp.top()) >= sign(s)) {
-				result += tmp.top();
+				postfix.push(tmp.top());
+				//result += tmp.top();
 				tmp.pop();
 			}
 			tmp.push(s);
@@ -39,35 +40,97 @@ string infix2posfix(string _infix) {
 			tmp.push(s);
 			break;
 		case 1:	// ")"
-			cout << "." << endl;
+			//cout << "." << endl;
 			while (tmp.top() != "(") {
-				result += tmp.top();
+				postfix.push(tmp.top());
+				//result += tmp.top();
 				tmp.pop();
 			}
 			tmp.pop();
 			break;
 		case 999:
-			result += s;
+			postfix.push(s);
+			//result += s;
 			break;
 		}
-		result += ' ';
 	}
+
+	
 	while (!tmp.empty()) {
-		result += tmp.top();
+		postfix.push(tmp.top());
+		//result += tmp.top();
 		tmp.pop();
+	}
+	string result = {};
+	while (!postfix.empty()) {
+		result = postfix.top() + " " + result;
+		postfix.pop();
 	}
 	return result;
 }
 
-//干0
-void fill0(string* s, int n) {
-	int len = s->length();
-	for (int i = 0; i < n - len; i++) {
-		*s = '0' + *s;
+//干0 --20220420э块よΑ
+void fill0(string* s1, string* s2) {
+	int len1 = s1->length();
+	int len2 = s2->length();
+	//常⊿Τ计翴
+	if (s1->find(".") == string::npos && s2->find(".") == string::npos) {
+		if (len1 > len2) {
+			for (int i = 0; i < len1 - len2; i++) {
+				*s2 = '0' + *s2;
+			}
+		}
+		else {
+			for (int i = 0; i < len2 - len1; i++) {
+				*s1 = '0' + *s1;
+			}
+		}
 	}
+	else {
+		int dec1 = 0, dec2 = 0;
+		if (s1->find(".") != string::npos) dec1 = s1->find(".");
+		else {
+			*s1 = *s1 + '.';
+			dec1 = len1;
+			len1++;
+		}
+		if (s2->find(".") != string::npos) dec2 = s2->find(".");
+		else {
+			*s2 = *s2 + '.';
+			dec2 = len2;
+			len2++;
+		}
+
+		//干霍俱计
+		if (dec1 > dec2) {
+			for (int i = 0; i < dec1 - dec2; i++) {
+				*s2 = '0' + *s2;
+			}
+		}
+		else {
+			for (int i = 0; i < dec2 - dec1; i++) {
+				*s1 = '0' + *s1;
+			}
+		}
+
+		//干霍计
+		dec1 = len1 - dec1;
+		dec2 = len2 - dec2;
+		if (dec1 > dec2) {
+			for (int i = 0; i < dec1 - dec2; i++) {
+				*s2 = *s2 + '0';
+			}
+		}
+		else {
+			for (int i = 0; i < dec2 - dec1; i++) {
+				*s1 = *s1 + '0';
+			}
+		}
+	}
+
 }
 
-//睲埃秨繷緇0
+//矪柑计场だ(yuchen @ 2022.04.20)
 string clear0(string s) {
 	int len = s.length();
 	int count = 0;
@@ -79,10 +142,24 @@ string clear0(string s) {
 	if (count == len) s = "0";
 	else if (s[0] == '-') s.erase(1, count);
 	else s.erase(0, count);
+
+	if (s.find(".") != string::npos) {
+		count = 0;
+		len = s.length();
+		for (int i = len - 1; i >= 0; i--) {
+			if (s[i] != '0') break;
+			else count++;
+		}
+		cout << "====" << count << endl;
+		s.erase(len - count, count);
+		len = s.length();
+		if (s[len - 1] == '.') s.erase(len - 1, 1);
+	}
+
 	return s;
 }
 
-//﹟ゼ矪瞶计场だ(yuchen @ 2022.04.17)
+//矪柑计场だ(yuchen @ 2022.04.20)
 string add(string s1, string s2) {
 	string result = {};
 	bool sign = 0;
@@ -101,16 +178,14 @@ string add(string s1, string s2) {
 	}
 
 	int len = 0, carry = 0, tmp = 0;
-	if (s1.length() > s2.length()) {
-		len = s1.length();
-		fill0(&s2, len);
-	}
-	else {
-		len = s2.length();
-		fill0(&s1, len);
-	}
+	fill0(&s1, &s2);
+	len = s1.length();
 
 	for (int i = len - 1; i >= 0; i--) {
+		if (s1[i] == '.' && s2[i] == '.') {
+			result = '.' + result;
+			continue;
+		}
 		tmp = s1[i] - '0' + s2[i] - '0' + carry;
 		if (tmp >= 10) {
 			carry = 1;
@@ -128,13 +203,13 @@ string add(string s1, string s2) {
 	return result;
 }
 
-//﹟ゼ矪瞶计场だ(yuchen @ 2022.04.17)
+//矪柑计场だ(yuchen @ 2022.04.20)
 string sub(string s1, string s2) {
 	string result = {};
 	bool sign = 0;
 	if (s1[0] == '-' && s2[0] != '-') {
 		s1.erase(0, 1);
-		result = add(s1, s2);
+		result = add(s2, s1);
 		result = '-' + result;
 		return result;
 	}
@@ -149,16 +224,14 @@ string sub(string s1, string s2) {
 	}
 
 	int len = 0, borrow = 0, tmp = 0;
-	if (s1.length() > s2.length()) {
-		len = s1.length();
-		fill0(&s2, len);
-	}
-	else {
-		len = s2.length();
-		fill0(&s1, len);
-	}
+	fill0(&s1, &s2);
+	len = s1.length();
 
 	for (int i = len - 1; i >= 0; i--) {
+		if (s1[i] == '.' && s2[i] == '.') {
+			result = '.' + result;
+			continue;
+		}
 		tmp = (s1[i] - '0') - (s2[i] - '0') - borrow;
 		if (tmp < 0) {
 			borrow = 1;
@@ -169,9 +242,11 @@ string sub(string s1, string s2) {
 		}
 		result = (char)(tmp + '0') + result;
 	}
+
 	//璽计矪瞶
 	if (borrow == 1) {
 		for (int i = 0; i < len; i++) {
+			if (s1[i] == '.' && s2[i] == '.') continue;
 			if ((i == len - 1) && result[i] != '0') result[i] = (char)(10 - (result[i] - '0') + '0');
 			else if ((i == len - 1) && result[i] == '0') continue;
 			else if ((i == len - 2) && result[len - 1] == '0') result[i] = (char)(10 - (result[i] - '0') + '0');
@@ -182,4 +257,85 @@ string sub(string s1, string s2) {
 	if (sign && result[0] != '-') result = '-' + result;
 	else if (sign && result[0] == '-') result.erase(0, 1);
 	return clear0(result);
+}
+
+//矪柑计场だ(yuchen @ 2022.04.20)
+string multi(string s1, string s2) {
+	bool sign = 0;
+	if (s1[0] == '-' && s2[0] != '-') {
+		sign = 1;
+		s1.erase(0, 1);
+	}
+	else if (s2[0] == '-' && s1[0] != '-') {
+		sign = 1;
+		s2.erase(0, 1);
+	}
+	else if (s1[0] == '-' && s2[0] == '-') {
+		s1.erase(0, 1);
+		s2.erase(0, 1);
+	}
+
+	//计
+	int dec = 0;
+	int len1 = s1.length();
+	int len2 = s2.length();
+	if (s1.find(".") != string::npos) {
+		dec += (len1 - s1.find(".") - 1);
+		s1.erase(s1.find("."), 1);
+		len1 = s1.length();
+	}
+	if (s2.find(".") != string::npos) {
+		dec += (len2 - s2.find(".") - 1);
+		s2.erase(s2.find("."), 1);
+		len2 = s2.length();
+	}
+
+	//猭璸衡
+	int* tmp = new int[len1 + len2]{};
+	for (int i = 0; i < len2; i++) {
+		for (int j = 0; j < len1; j++) {
+			tmp[i + j + 1] += (s1[j] - '0') * (s2[i] - '0');
+		}
+	}
+
+	//矪瞶秈
+	int carry = 0;
+	for (int i = len1 + len2 - 1; i >= 0; i--) {
+		tmp[i] += carry;
+		if (tmp[i] >= 10) {
+			carry = tmp[i] / 10;
+			tmp[i] = tmp[i] % 10;
+		}
+		else {
+			carry = 0;
+		}
+	}
+
+	//临Θ﹃
+	string result = {};
+	for (int i = 0; i < len1 + len2; i++) {
+		result = result + (char)(tmp[i] + '0');
+	}
+	result = clear0(result);
+
+	//计翴
+	if (dec != 0) {
+		int len = result.length();
+		result.insert(len - dec, ".");
+	}
+	if (sign) result = '-' + result;
+
+	delete[] tmp;
+	return result;
+}
+
+//顶(忌秆)
+string fac(string s1) {
+	string result = s1;
+	s1 = sub(s1, "1");
+	while (s1 != "1") {
+		result = multi(result, s1);
+		s1 = sub(s1, "1");
+	}
+	return result;
 }

@@ -1,6 +1,6 @@
 // File: Header.h
 // Creator: Yu-chen Kuo
-// Last Update: 2022/04/17
+// Last Update: 2022/04/20
 
 //放置所需的標頭檔案與全域函數
 //main.cpp請勿引入
@@ -28,8 +28,13 @@ string infix2posfix(string _infix);
 string add(string s1, string s2);
 string sub(string s1, string s2);
 
-//補0
-void fill0(string* s, int n);
+string multi(string s1, string s2);
+
+//階乘(暴力解)
+string fac(string s1);
+
+//補0  --20220420更改輸入方式
+void fill0(string* s1, string* s2);
 
 //清除開頭多餘的0
 string clear0(string s);
