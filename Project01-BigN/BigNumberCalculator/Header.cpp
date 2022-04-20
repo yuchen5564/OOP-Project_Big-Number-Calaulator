@@ -1,6 +1,6 @@
 // File: Header.h
 // Creator: Yu-chen Kuo
-// Last Update: 2022/04/20
+// Last Update: 2022/04/21
 
 //儲存函數
 
@@ -69,7 +69,7 @@ string infix2posfix(string _infix) {
 	return result;
 }
 
-//補0 --20220420更改輸入方式
+//補0 --20220420更改輸入方式，使其可以處裡小數對齊
 void fill0(string* s1, string* s2) {
 	int len1 = s1->length();
 	int len2 = s2->length();
@@ -134,6 +134,7 @@ void fill0(string* s1, string* s2) {
 string clear0(string s) {
 	int len = s.length();
 	int count = 0;
+	//處裡前方無意義0
 	for (int i = 0; i < len; i++) {
 		if (s[i] == '-') continue;
 		if (s[i] != '0') break;
@@ -143,6 +144,7 @@ string clear0(string s) {
 	else if (s[0] == '-') s.erase(1, count);
 	else s.erase(0, count);
 
+	//尋找小數點，處理後方無意義0
 	if (s.find(".") != string::npos) {
 		count = 0;
 		len = s.length();
@@ -150,7 +152,7 @@ string clear0(string s) {
 			if (s[i] != '0') break;
 			else count++;
 		}
-		cout << "====" << count << endl;
+		//cout << "====" << count << endl;
 		s.erase(len - count, count);
 		len = s.length();
 		if (s[len - 1] == '.') s.erase(len - 1, 1);
@@ -200,7 +202,7 @@ string add(string s1, string s2) {
 		result = '1' + result;
 	}
 	if (sign) result = '-' + result;
-	return result;
+	return clear0(result)	;
 }
 
 //已處裡小數部分(yuchen @ 2022.04.20)
@@ -326,7 +328,101 @@ string multi(string s1, string s2) {
 	if (sign) result = '-' + result;
 
 	delete[] tmp;
-	return result;
+	return clear0(result);
+}
+
+//尚未處裡小數部分(ming @ 2022.04.20)
+string divide(string s1, string s2)
+{
+	// 判斷result正負的flag
+	int flag = 0;
+	if (s1[0] == '-' && s2[0] != '-')
+	{
+		flag = 1;
+		s1.erase(0, 1);
+	}
+	else if (s1[0] != '-' && s2[0] == '-')
+	{
+		flag = 1;
+		s2.erase(0, 1);
+	}
+	else if (s1[0] == '-' && s2[0] == '-')
+	{
+		s1.erase(0, 1);
+		s2.erase(0, 1);
+	}
+	// 連續減法的counter
+	int counter = -1;
+	// 被除數的temp
+	string s1Temp = s1;
+	// 上一個被除數的temp    for 被除數長度大於除數長度
+	string s1TempPre = s1;
+	// 被除數(s1), 除數(s2)的長度
+	int s1Len = s1.size(), s2Len = s2.size();
+	// result 
+	string result = "";
+	// 比較長度
+	if (s1Len < s2Len) // return 0
+	{
+		return "0";
+	}
+	// 長度相同狀況
+	else if (s1Len == s2Len)
+	{
+		if (sub(s1, s2)[0] == '-')
+		{
+			return "0";
+		}
+		else
+		{
+			// 減到出現負為止			
+			while (s1Temp[0] != '-')
+			{
+				s1Temp = sub(s1Temp, s2);
+				counter++;
+			}
+			// 把counter 加入result
+			char temp = counter + '0';
+			result += temp;
+			return result;
+		}
+	}
+	// 被除數長度>除數長度
+	else
+	{
+		// 除數補零至與被除數相同
+		int fill0Counter = s1.size() - s2.size();
+		for (int i = 0; i < fill0Counter; i++)
+		{
+			s2 += "0";
+		}
+		// 減到到被除數出現負數且去掉補過的零為止
+		while (fill0Counter >= 0)
+		{
+			counter = -1;
+			while (s1Temp[0] != '-')
+			{
+				// 存下s1TempPre小於0之前的值
+				s1TempPre = s1Temp;
+				s1Temp = sub(s1Temp, s2);
+				counter++;
+			}
+			// 把counter 加入result
+			char temp = counter + '0';
+			result += temp;
+			// s1回到小於0之前的值
+			s1Temp = s1TempPre;
+			//去一個零
+			s2.erase(s2.end() - 1);
+			fill0Counter--;
+		}
+		// result加上正負號
+		if (flag == 1) // 若負號就前面加'-' 正號do nothing
+		{
+			result = "-" + result;
+		}
+		return clear0(result);
+	}
 }
 
 //階乘(暴力解)

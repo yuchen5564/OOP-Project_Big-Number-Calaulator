@@ -29,11 +29,12 @@ string add(string s1, string s2);
 string sub(string s1, string s2);
 
 string multi(string s1, string s2);
+string divide(string s1, string s2); //By ming. TO-DO:小數
 
 //階乘(暴力解)
 string fac(string s1);
 
-//補0  --20220420更改輸入方式
+//補0  --20220420更改輸入方式，使其可以處裡小數對齊
 void fill0(string* s1, string* s2);
 
 //清除開頭多餘的0
