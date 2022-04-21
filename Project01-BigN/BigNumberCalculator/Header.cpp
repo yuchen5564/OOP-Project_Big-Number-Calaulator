@@ -1,6 +1,6 @@
 // File: Header.h
 // Creator: Yu-chen Kuo
-// Last Update: 2022/04/21
+// Last Update: 2022/04/21                      
 
 //儲存函數
 
@@ -20,56 +20,79 @@ int sign(string _in) {
 	return 999;
 }
 
+//2022.04.21 [修復] 正負號error問題 、 ======> [待處理] * / 在首位防呆 
 string infix2posfix(string _infix) {
-	//if (_infix == "") return "";
 	istringstream in(_infix);
-	stack<string> postfix;
 	stack<string> tmp; //暫存運算元
 	string s;
+	string result = {};
+	vector<string>element;
+	vector<string>::iterator i;
+	//先收入所有元素
 	while (in >> s) {
+		element.push_back(s);
+	}
+	int ssign = 0;//0:+ ; 1:- //紀錄正負號標記
+	string snext; //儲存下一個元素
+	int count = 0; //區分正負號和加減
+
+	for (i = element.begin(); i != element.end(); i++) {
+		s = *i;
+		if (i != element.end() - 1) {
+			snext = *(i + 1);
+		}
+		bool flag = 0;
 		switch (sign(s)) {
-		case 2:case 3: case 4: case 5:
+		case 2: 
+			//正負號處理
+			if (i != element.begin() && count == 0) {
+				count++;
+			}
+			else {
+				flag = 1;
+				if (!(isdigit(snext[0]) || isdigit(snext[1]))) {
+					if (s == "-" && ssign == 0) ssign = 1;
+					else if (s == "-" && ssign == 1) ssign = 0;
+					continue;
+				}
+			}
+		case 3: case 4: case 5:
 			while (!tmp.empty() && sign(tmp.top()) >= sign(s)) {
-				postfix.push(tmp.top());
-				//result += tmp.top();
+				result += tmp.top();
 				tmp.pop();
 			}
-			tmp.push(s);
+			if (!flag) tmp.push(s);
 			break;
 		case 0:	// "("
 			tmp.push(s);
 			break;
 		case 1:	// ")"
-			//cout << "." << endl;
 			while (tmp.top() != "(") {
-				postfix.push(tmp.top());
-				//result += tmp.top();
+				result += tmp.top();
 				tmp.pop();
 			}
 			tmp.pop();
 			break;
-		case 999:
-			postfix.push(s);
-			//result += s;
+		case 999: //非運算符號
+			//處理正負號
+			if (ssign == 1 && s[0] != '-')	s = '-' + s;
+			else if (ssign == 1 && s[0] == '-') s.erase(0, 1);
+			ssign = 0; //記錄重置
+			count = 0; //記錄重置
+			result += s;
 			break;
 		}
+		result += ' ';
 	}
-
-	
 	while (!tmp.empty()) {
-		postfix.push(tmp.top());
-		//result += tmp.top();
+		result += ' ';
+		result += tmp.top();
 		tmp.pop();
-	}
-	string result = {};
-	while (!postfix.empty()) {
-		result = postfix.top() + " " + result;
-		postfix.pop();
 	}
 	return result;
 }
 
-//補0 --20220420更改輸入方式，使其可以處裡小數對齊
+//補0 --20220420更改輸入方式，使其可以處理小數對齊
 void fill0(string* s1, string* s2) {
 	int len1 = s1->length();
 	int len2 = s2->length();
@@ -131,6 +154,7 @@ void fill0(string* s1, string* s2) {
 }
 
 //已處裡小數部分(yuchen @ 2022.04.20)
+//2022.04.21 [修補] 若整數位相減後為0，須補0
 string clear0(string s) {
 	int len = s.length();
 	int count = 0;
@@ -140,8 +164,8 @@ string clear0(string s) {
 		if (s[i] != '0') break;
 		else count++;
 	}
-	if (count == len) s = "0";
-	else if (s[0] == '-') s.erase(1, count);
+	//if (count == len) s = "0";
+	if (s[0] == '-') s.erase(1, count);
 	else s.erase(0, count);
 
 	//尋找小數點，處理後方無意義0
@@ -157,7 +181,12 @@ string clear0(string s) {
 		len = s.length();
 		if (s[len - 1] == '.') s.erase(len - 1, 1);
 	}
-
+	if (s[0] == '-' && s[1] == '.') { //2022.04.21 [修補] 若整數位相減後為0，須補0
+		s = '-' + s;
+		s[1] = '0';
+	}
+	if (s[0] == '.') s = '0' + s; 
+	if (s.length() == 0) s = "0"; //2022.04.21 [修補] 相減後等於0，輸出0
 	return s;
 }
 
@@ -331,7 +360,67 @@ string multi(string s1, string s2) {
 	return clear0(result);
 }
 
-//尚未處裡小數部分(ming @ 2022.04.20)
+//除法用到========================================================
+void dec2int(string& s1, string& s2)
+{
+	int s1DecimalLen = 0;
+	int s2DecimalLen = 0;
+	if (s1.find('.') == string::npos)
+	{
+		s1DecimalLen = 0;
+	}
+	else
+	{
+		s1DecimalLen = s1.size() - s1.find('.') - 1;
+		s1.erase(s1.find('.'), 1);
+	}
+
+	if (s2.find('.') == string::npos)
+	{
+		s2DecimalLen = 0;
+	}
+	else
+	{
+		s2DecimalLen = s2.size() - s2.find('.') - 1;
+		s2.erase(s2.find('.'), 1);
+	}
+	int maxDeciLen = s1DecimalLen > s2DecimalLen ? s1DecimalLen : s2DecimalLen;
+	// 補零至整數
+	for (int i = 0; i < maxDeciLen - s1DecimalLen; i++)
+	{
+		s1 += "0";
+	}
+	for (int i = 0; i < maxDeciLen - s2DecimalLen; i++)
+	{
+		s2 += "0";
+	}
+
+}
+
+//每往下算一位s1就補零
+string decimal100(string s1, string s2)
+{
+	string deciResult = "";
+	string preS1 = s1;
+	for (int i = 0; i < 100; i++)
+	{
+		s1 += "0";
+		int dCounter = -1;
+		while (s1[0] != '-')
+		{
+			preS1 = s1;
+			s1 = sub(s1, s2);
+			dCounter++;
+		}
+		s1 = preS1;
+		char temp = dCounter + '0';
+		deciResult += temp;
+	}
+
+	return deciResult;
+}
+
+//已處理小數部分(ming @ 2022.04.21)
 string divide(string s1, string s2)
 {
 	// 判斷result正負的flag
@@ -351,6 +440,13 @@ string divide(string s1, string s2)
 		s1.erase(0, 1);
 		s2.erase(0, 1);
 	}
+
+	dec2int(s1, s2);
+
+	// 清除多餘的0
+	s1 = clear0(s1);
+	s2 = clear0(s2);
+
 	// 連續減法的counter
 	int counter = -1;
 	// 被除數的temp
@@ -361,37 +457,37 @@ string divide(string s1, string s2)
 	int s1Len = s1.size(), s2Len = s2.size();
 	// result 
 	string result = "";
-	// 比較長度
-	if (s1Len < s2Len) // return 0
-	{
-		return "0";
-	}
+
+	// 比較長度 // 直接decimal100
+	if (s1Len < s2Len) result = "0." + decimal100(s1, s2);
+
 	// 長度相同狀況
 	else if (s1Len == s2Len)
 	{
-		if (sub(s1, s2)[0] == '-')
-		{
-			return "0";
-		}
+		// 直接decimal100
+		if (sub(s1, s2)[0] == '-')  result = "0." + decimal100(s1, s2);
 		else
 		{
+			string preS1 = s1;
 			// 減到出現負為止			
-			while (s1Temp[0] != '-')
+			while (s1[0] != '-')
 			{
-				s1Temp = sub(s1Temp, s2);
+				preS1 = s1;
+				s1 = sub(s1, s2);
 				counter++;
 			}
 			// 把counter 加入result
 			char temp = counter + '0';
 			result += temp;
-			return result;
+			// 計算小數部分
+			result += '.' + decimal100(preS1, s2); // 補小數點
 		}
 	}
 	// 被除數長度>除數長度
 	else
 	{
-		// 除數補零至與被除數相同
-		int fill0Counter = s1.size() - s2.size();
+		// 除數補零至與被除數相同 ex: 5 - 3
+		int fill0Counter = s1.size() - s2.size(); // 2
 		for (int i = 0; i < fill0Counter; i++)
 		{
 			s2 += "0";
@@ -413,20 +509,20 @@ string divide(string s1, string s2)
 			// s1回到小於0之前的值
 			s1Temp = s1TempPre;
 			//去一個零
-			s2.erase(s2.end() - 1);
+			if (fill0Counter > 0) s2.erase(s2.end() - 1);
 			fill0Counter--;
 		}
-		// result加上正負號
-		if (flag == 1) // 若負號就前面加'-' 正號do nothing
-		{
-			result = "-" + result;
-		}
-		return clear0(result);
+		result += "." + decimal100(s1TempPre, s2);
 	}
+	// result加上正負號 // 若負號就前面加'-' 正號do nothing
+	if (flag == 1) result = "-" + result;
+	return clear0(result);
 }
 
-//階乘(暴力解)
+//階乘(暴力解) --> TLE?快速算法?
+//2022.04.21 [測試] 3000! 45s; 5000! 3min20s
 string fac(string s1) {
+	if (s1 == "0") return "1"; //2022.04.22 [新增] 0!定義
 	string result = s1;
 	s1 = sub(s1, "1");
 	while (s1 != "1") {

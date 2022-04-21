@@ -16,7 +16,7 @@ using namespace std;
 
 // 運算子優先權
 // 輸入: 數值字串或運算子字串
-// 返回: 對應優先權數字，若非運算子返回0
+// 返回: 對應優先權數字，若非運算子返回999
 int sign(string _in);
 
 // 中序式轉後序式
@@ -29,7 +29,7 @@ string add(string s1, string s2);
 string sub(string s1, string s2);
 
 string multi(string s1, string s2);
-string divide(string s1, string s2); //By ming. TO-DO:小數
+string divide(string s1, string s2); //By ming. 
 
 //階乘(暴力解)
 string fac(string s1);
@@ -39,3 +39,10 @@ void fill0(string* s1, string* s2);
 
 //清除開頭多餘的0
 string clear0(string s);
+
+
+//除法用==========================================
+void dec2int(string& s1, string& s2);
+
+//每往下算一位s1就補零
+string decimal100(string s1, string s2);
