@@ -1,6 +1,6 @@
 // File: Header.h
 // Creator: Yu-chen Kuo
-// Last Update: 2022/04/21                      
+// Last Update: 2022/04/23                  
 
 //儲存函數
 
@@ -22,8 +22,34 @@ int sign(string _in) {
 
 //2022.04.21 [修復] 正負號error問題 、 ======> [待處理] * / 在首位防呆 
 string infix2posfix(string _infix) {
+	//2022.04.22 [新增] 輸入無空格，先分隔運算元與元素
+	int len = _infix.length();
+	bool f = 0;
+	for (int i = 0; i < len; i++) {
+		//2022.04.23 [修正] 遇到負號不會分隔
+		if (!isdigit(_infix[i])) {
+			if (f) {
+				f = 0;
+				continue;
+			}
+
+			if (_infix[i] == '(') f = 1;
+			else f = 0;
+			/*if (_infix[i] == '-' && isdigit(_infix[i + 1])) {
+				continue;
+			}*/
+			_infix.insert(i, " ");
+			i++;
+			len++;
+			_infix.insert(i + 1, " ");
+			i++;
+			len++;
+		}
+	}
+	cout << _infix << endl;
 	istringstream in(_infix);
 	stack<string> tmp; //暫存運算元
+	stack<string>postfix;
 	string s;
 	string result = {};
 	vector<string>element;
@@ -57,18 +83,33 @@ string infix2posfix(string _infix) {
 				}
 			}
 		case 3: case 4: case 5:
+			if (s == "*" && tmp.top() == "/") { //2022.04.23 [修正] 1/3*3 = 0.99999...
+				string v = postfix.top();
+				postfix.pop();
+				postfix.push(snext);
+				postfix.push(s);
+				postfix.push(v);
+				i++;
+				break;
+			}
 			while (!tmp.empty() && sign(tmp.top()) >= sign(s)) {
-				result += tmp.top();
+				postfix.push(tmp.top());
+				//result += ' ';
+				//result += tmp.top();
 				tmp.pop();
 			}
 			if (!flag) tmp.push(s);
+			
 			break;
 		case 0:	// "("
 			tmp.push(s);
 			break;
 		case 1:	// ")"
 			while (tmp.top() != "(") {
-				result += tmp.top();
+				postfix.push(tmp.top());
+				/*result += ' ';
+				result += tmp.top();*/
+				
 				tmp.pop();
 			}
 			tmp.pop();
@@ -79,16 +120,25 @@ string infix2posfix(string _infix) {
 			else if (ssign == 1 && s[0] == '-') s.erase(0, 1);
 			ssign = 0; //記錄重置
 			count = 0; //記錄重置
-			result += s;
+			postfix.push(s);
+			/*result += ' ';
+			result += s;*/
+			
 			break;
 		}
-		result += ' ';
+		//result += ' ';
 	}
 	while (!tmp.empty()) {
-		result += ' ';
-		result += tmp.top();
+		postfix.push(tmp.top());
+		/*result += ' ';
+		result += tmp.top();*/
 		tmp.pop();
 	}
+	while (!postfix.empty()) {
+		result =  postfix.top() + ' ' + result;
+		postfix.pop();
+	}
+	cout << result << endl;
 	return result;
 }
 
@@ -531,3 +581,5 @@ string fac(string s1) {
 	}
 	return result;
 }
+
+

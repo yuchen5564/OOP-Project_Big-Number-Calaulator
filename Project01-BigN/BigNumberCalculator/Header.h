@@ -1,6 +1,6 @@
 // File: Header.h
 // Creator: Yu-chen Kuo
-// Last Update: 2022/04/23
+// Last Update: 2022/04/21
 
 //放置所需的標頭檔案與全域函數
 //main.cpp請勿引入
@@ -20,7 +20,7 @@ using namespace std;
 int sign(string _in);
 
 // 中序式轉後序式
-// 輸入: 中序式字串
+// 輸入: 中序式字串，每個數和符號之間要有一個空格(e.g. 1+2+3: 1 + 2 + 3)
 // 返回: 後序式字串，每個數和符號之間會有一個空格(e.g. 12+3+: 1 2 + 3 +)
 string infix2posfix(string _infix);
 

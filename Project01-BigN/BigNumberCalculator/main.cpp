@@ -33,8 +33,8 @@ int main() {
 		//cout << input.length() << endl;
 		stringstream in(input);
 		in >> tmp;
-		//if (tmp == "Set") {
-		if(input.find("=") != string::npos){ //2022.04.21 [更改] 判別方式
+		//if () {
+		if(tmp == "Set" && input.find("=") != string::npos){ //2022.04.21 [更改] 判別方式
 			calc.setVariale(input);
 			calc.showVariale();
 		}
