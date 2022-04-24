@@ -14,6 +14,34 @@ int main() {
 	//cout << test << endl;
 	SetConsoleTitleA("Big Number Calculator");
 
+	cout << "===Test operator overloading===\n";
+	//cout << "[Integer]\n";
+	cout << "[Decimal]\n";
+	Decimal a = "301.987-1", b = "3", c;
+	Integer d, e = "123", f = "123";
+	d = a + b;
+	c = e + a;
+	cout << c << endl;
+	cout << d << endl;
+	cout << "a = " << a << endl;
+	cout << "b = " << b << endl;
+	cout << "a+b = " << a + b << endl;
+	cout << "a-b = " << a - b << endl;
+	cout << "a*b = " << a * b << endl;
+	cout << "a/b = " << a / b << endl;
+	/*cout << "\nInput to Integer: ";
+	cin >> a >> b;
+	cout << "a = " << a << endl;
+	cout << "b = " << b << endl;
+	cout << "a+b = " << a + b << endl;
+	cout << "a-b = " << a - b << endl;
+	cout << "a*b = " << a * b << endl;
+	cout << "a/b = " << a / b << endl;*/
+	cout << "===============================\n\n";
+
+	//getchar();
+
+	cout << "===Big Number Calculator===\n";
 	BigN calc;
 	string input = "1 + 2 - 3";
 	string tmp;

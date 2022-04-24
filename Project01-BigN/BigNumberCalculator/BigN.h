@@ -1,11 +1,17 @@
 // File: BigN.h
 // Creator: Yu-chen Kuo
-// Last Update: 2022/04/21
+// Last Update: 2022/04/23
 
 //class定義區塊
 
+//2022.04.23 [新增] Class Integer、Decimal
+
 #pragma once
 #include "Header.h"
+
+class BigN;
+class Integer;
+class Deciaml;
 
 typedef struct {
 	string dataType; //變數型態
@@ -36,16 +42,68 @@ private:
 	vector<Variable> list; //儲存自訂變數
 };
 
+class Decimal {
+public:
+	Decimal() { value = "0.0"; }
+	Decimal(string _in);
+	Decimal(const char* _in);
+
+	string getValue() { return this->value; }
+
+	Decimal& operator=(Decimal s);
+	Decimal& operator=(Integer s);
+
+	//Decimal & Decimal
+	Decimal operator+(Decimal s);
+	Decimal operator-(Decimal s);
+	Decimal operator*(Decimal s);
+	Decimal operator/(Decimal s);
+
+	//Decimal & Integer
+	Decimal operator+(Integer s);
+	Decimal operator-(Integer s);
+	Decimal operator*(Integer s);
+	Decimal operator/(Integer s);
+
+	//Integer & Decimal
+	friend Decimal operator+(Integer s, Decimal d);
+	friend Decimal operator-(Integer s, Decimal d);
+	friend Decimal operator*(Integer s, Decimal d);
+	friend Decimal operator/(Integer s, Decimal d);
+
+
+	friend istream& operator>>(istream& input, Decimal& s);
+	friend ostream& operator<<(ostream& output, const Decimal& a);
+
+
+private:
+	string value;
+};
+
 class Integer {
 public:
 	Integer() { value = "0"; }
-	Integer(string _in) { value = _in; }
+	Integer(string _in);
+	Integer(const char* _in);
 
-	friend Integer operator+(Integer a, Integer b){ 
-		Integer tmp;
-		tmp.value = add(a.value, b.value);
-		return add(a.value, b.value);
-	}
+	string getValue() { return this->value; }
+
+	Integer& operator=(Integer s);
+	Integer& operator=(Decimal d);
+
+	//Integer & Integer
+	Integer operator+(Integer s);
+	Integer operator-(Integer s);
+	Integer operator*(Integer s);
+	Integer operator/(Integer s);
+
+	friend istream& operator>>(istream& input, Integer& s);
+	friend ostream& operator<<(ostream& output, const Integer& a);
+
+
+private:
 	string value;
+	//	int a;
 };
+
 

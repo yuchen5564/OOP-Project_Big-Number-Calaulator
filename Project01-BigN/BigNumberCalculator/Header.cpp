@@ -20,17 +20,25 @@ int sign(string _in) {
 	return 999;
 }
 
-//2022.04.21 [修復] 正負號error問題 、 ======> [待處理] * / 在首位防呆 
+//2022.04.21 [修復] 正負號error問題
 string infix2posfix(string _infix) {
 	//2022.04.22 [新增] 輸入無空格，先分隔運算元與元素
+	if (_infix[0] == '-') _infix = '0' + _infix;	//2022.04.24 [修正] 負號在首階乘問題
 	int len = _infix.length();
 	bool f = 0;
 	for (int i = 0; i < len; i++) {
+
+		//2022.04.23 [修正] 遇到小數點不應分隔
+		if (_infix[i] == '.') continue;
+		
 		//2022.04.23 [修正] 遇到負號不會分隔
 		if (!isdigit(_infix[i])) {
-			if (f) {
+			if (f && _infix[i] == '-') { //2022.04.24 [修正] 判別式
 				f = 0;
 				continue;
+			}
+			else {
+				f = 0;
 			}
 
 			if (_infix[i] == '(') f = 1;
@@ -46,7 +54,7 @@ string infix2posfix(string _infix) {
 			len++;
 		}
 	}
-	cout << _infix << endl;
+	//cout << _infix << endl;
 	istringstream in(_infix);
 	stack<string> tmp; //暫存運算元
 	stack<string>postfix;
@@ -83,7 +91,7 @@ string infix2posfix(string _infix) {
 				}
 			}
 		case 3: case 4: case 5:
-			if (s == "*" && tmp.top() == "/") { //2022.04.23 [修正] 1/3*3 = 0.99999...
+			if (s == "*" && tmp.top() == "/") { //2022.04.23 [修正] 1/3*3 = 0.99999...  //TO-DO: 1/3+2/3
 				string v = postfix.top();
 				postfix.pop();
 				postfix.push(snext);
@@ -138,7 +146,7 @@ string infix2posfix(string _infix) {
 		result =  postfix.top() + ' ' + result;
 		postfix.pop();
 	}
-	cout << result << endl;
+	//cout << result << endl;
 	return result;
 }
 
@@ -410,6 +418,13 @@ string multi(string s1, string s2) {
 	return clear0(result);
 }
 
+void checkInteger(string* s) {
+	if (s->find(".") != string::npos) {
+		int pos = s->find(".");
+		s->erase(pos);
+	}
+}
+
 //除法用到========================================================
 void dec2int(string& s1, string& s2)
 {
@@ -573,6 +588,7 @@ string divide(string s1, string s2)
 //2022.04.21 [測試] 3000! 45s; 5000! 3min20s
 string fac(string s1) {
 	if (s1 == "0") return "1"; //2022.04.22 [新增] 0!定義
+	if (s1 == "1") return "1"; //2022.04.24 [修正] 1!無窮迴圈
 	string result = s1;
 	s1 = sub(s1, "1");
 	while (s1 != "1") {

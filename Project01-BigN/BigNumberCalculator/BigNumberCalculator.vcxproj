@@ -140,7 +140,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BigN.cpp" />
+    <ClCompile Include="Decimal.cpp" />
     <ClCompile Include="Header.cpp" />
+    <ClCompile Include="Integer.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>

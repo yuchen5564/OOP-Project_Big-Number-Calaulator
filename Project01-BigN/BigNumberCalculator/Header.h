@@ -40,6 +40,9 @@ void fill0(string* s1, string* s2);
 //清除開頭多餘的0
 string clear0(string s);
 
+//檢查如果型別是int，去除小數點後所有位元	//2022.04.23 Add
+void checkInteger(string* s);
+
 
 //除法用==========================================
 void dec2int(string& s1, string& s2);

@@ -1,6 +1,6 @@
 // File: BigN.cpp
 // Creator: Yu-chen Kuo
-// Last Update: 2022/04/23
+// Last Update: 2022/04/24
 
 //classㄧΑず甧
 
@@ -68,13 +68,16 @@ string BigN::countValue(string _in) {
 			case 5: //2022.04.20 [穝糤] Error Code: 顶ずΤ计翴计琌璽计
 				s1 = tmp.top();
 				tmp.pop();
+				s1 = clear0(s1);
 				if (s1.find(".") != string::npos) { //2.0 ? allow
 					cout << "[Error] Factorial cannot have decimals!\n";
 					errorCode = 1;
+					break;
 				}
 				else if (s1[0] == '-') {
 					cout << "[Error] Factorial cannot be negative!\n";
 					errorCode = 1;
+					break;
 				}
 				else {
 					tmp.push(fac(s1));
@@ -114,7 +117,7 @@ string BigN::countValue(string _in) {
 				break;
 			}
 		}
-		return tmp.top();
+		if(!errorCode) return tmp.top();
 	}
 	return "Error";
 }
@@ -140,11 +143,9 @@ void BigN::setVariale(string _in) {
 		if (var.dataType == "Integer" || var.dataType == "Decimal") {
 			var.value = countValue(value);
 			if (var.value != "Error") {
-				//埃ぃ篈场だ
-				if (var.dataType == "Integer" && var.value.find(".") != string::npos) {
-					int pos = var.value.find(".");
-					var.value.erase(pos);
-				}
+
+				//埃ぃ场だ
+				if (var.dataType == "Integer") checkInteger(&var.value);
 
 				//碝т琌
 				bool find = 0;
