@@ -20,22 +20,36 @@ int sign(string _in) {
 	return 999;
 }
 
-//2022.04.21 [修復] 正負號error問題
-string infix2posfix(string _infix) {
-	//2022.04.22 [新增] 輸入無空格，先分隔運算元與元素
-	if (_infix[0] == '-') _infix = '0' + _infix;	//2022.04.24 [修正] 負號在首階乘問題
-	int len = _infix.length();
+int signC(char _in) {
+	if (_in == '(') return 0;
+	if (_in == ')') return 1;
+
+	if (_in == '+') return 2;
+	if (_in == '-') return 2;
+	if (_in == '*') return 3;
+	if (_in == '/') return 3;
+	if (_in == '^') return 4;
+	if (_in == '!') return 5;
+	if (_in == '=') return 10;
+
+	return 999;
+}
+
+//分割字元與符號 --2022.04.25
+string splitString(string _in) {
+	int len = _in.length();
 	bool f = 0;
 	for (int i = 0; i < len; i++) {
 
 		//2022.04.23 [修正] 遇到小數點不應分隔
-		if (_infix[i] == '.') continue;
-		
+		if (_in[i] == '.') continue;
+
 		//2022.04.23 [修正] 遇到負號不會分隔
-		if (!isdigit(_infix[i])) {
+		//cout << sign(to_string(_in[i])) << endl;
+		if (signC(_in[i]) != 999) {
 
 			//左括號後負號不分隔
-			if (f && _infix[i] == '-') { //2022.04.24 [修正] 判別式
+			if (f && _in[i] == '-') { //2022.04.24 [修正] 判別式
 				f = 0;
 				continue;
 			}
@@ -44,22 +58,30 @@ string infix2posfix(string _infix) {
 			}
 
 			//遇到左括號
-			if (_infix[i] == '(') f = 1;
+			if (_in[i] == '(') f = 1;
 			else f = 0;
-			
+
 			//遇到未加括號的負數，不分隔 --2022.04.25
-			if (_infix[i] == '-' && !isdigit(_infix[i - 1])) {
+			if (_in[i] == '-' && !isdigit(_in[i - 1])) {
 				continue;
 			}
 
-			_infix.insert(i, " ");
+			_in.insert(i, " ");
 			i++;
 			len++;
-			_infix.insert(i + 1, " ");
+			_in.insert(i + 1, " ");
 			i++;
 			len++;
 		}
 	}
+	return _in;
+}
+
+//2022.04.21 [修復] 正負號error問題
+string infix2posfix(string _infix) {
+	//2022.04.22 [新增] 輸入無空格，先分隔運算元與元素
+	if (_infix[0] == '-') _infix = '0' + _infix;	//2022.04.24 [修正] 負號在首階乘問題
+	_infix = splitString(_infix);
 	//cout << _infix << endl;
 	istringstream in(_infix);
 	stack<string> tmp; //暫存運算元

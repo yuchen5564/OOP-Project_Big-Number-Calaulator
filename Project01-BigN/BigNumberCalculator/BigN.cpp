@@ -11,6 +11,7 @@ string BigN::countValue(string _in) {
 	bool errorCode = 0;
 	int len = _in.length();
 	int count = 0;
+	string result;
 	//2022.04.23 [新增] 去除不必要的空格，以避免後續判讀出問題
 	for (int i = 0; i < len; i++) {
 		if (_in[i] == ' ') {
@@ -31,19 +32,20 @@ string BigN::countValue(string _in) {
 		errorCode = 1;
 		cout << "[Error] Please confirm the formula!\n";
 	}
+	//cout << _in << endl;
 	if (_in.find("=") != string::npos) { //2022.04.22 [新增] 防呆，輸入結尾有=
-		/*errorCode = 1;
-		cout << "[Error] Please remove \"=\"!\n";
-	*/
+				
 		_in.erase(_in.find("="), 1);
+		//return result;
 	}
+	//cout << _in << endl;
 
 	if (!errorCode) {
 		string postfix = infix2posfix(_in);
 		//cout << postfix << endl;
 		istringstream in(postfix);
 		stack<string> tmp;
-		string s, result;// , s1, s2;
+		string s;// , result;// , s1, s2;
 
 		while (!errorCode && in >> s) {
 
@@ -147,11 +149,15 @@ string BigN::countValue(string _in) {
 }
 
 void BigN::setVariale(string _in) {
+	
+	//字元分隔
+	_in = splitString(_in);
 	//接收資料
 	stringstream in(_in);
 	string tmp;
 	Variable var;
 	string value = {};
+	
 	in >> tmp;
 
 	if (tmp == "Set") { //輸入: Set Integer/Decimal A = 10

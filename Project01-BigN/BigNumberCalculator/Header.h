@@ -43,6 +43,11 @@ string clear0(string s);
 //檢查如果型別是int，去除小數點後所有位元	//2022.04.23 Add
 void checkInteger(string* s);
 
+//2022.04.25 [新增]
+int signC(char _in);
+
+//2022.04.25 [新增]
+string splitString(string _in);
 
 //除法用==========================================
 void dec2int(string& s1, string& s2);

@@ -57,6 +57,7 @@ int main() {
 
 		if (input == "memory") { //2022.04.25 [新增] 查看變數
 			calc.showVariale();
+			cout << "\n-------------------------------\n";
 			cout << INPUT;
 			continue;
 		}
@@ -77,11 +78,17 @@ int main() {
 		stringstream in(input);
 		in >> tmp;
 
-		if (tmp == "Set" && input.find("=") != string::npos) { //2022.04.21 [更改] 判別方式
+		//2022.04.21 [更改] 判別方式
+		//2022.04.26 [修正] 判別方式
+		if (tmp == "Set" && input.find("=") != string::npos) {  //Set Integer/Decimal
 			calc.setVariale(input);
 			calc.showVariale();
 		}
-		else {
+		else if (input.find("=") != string::npos && input.find("=")!=input.length()-1) { //A = A + 3
+			calc.setVariale(input);
+			calc.showVariale();
+		}
+		else { // 10+10
 			tmp = calc.countValue(input);
 			if (tmp != "Error") cout << "> Value: " << tmp << "\n";
 		}
