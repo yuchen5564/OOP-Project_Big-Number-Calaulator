@@ -24,10 +24,10 @@
     <ClCompile Include="Header.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
-    <ClCompile Include="Integer.cpp">
+    <ClCompile Include="Decimal.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
-    <ClCompile Include="Decimal.cpp">
+    <ClCompile Include="Integer.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
   </ItemGroup>

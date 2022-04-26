@@ -40,7 +40,7 @@ Integer Integer::operator+(Integer s) {
 
 Integer Integer::operator-(Integer s) {
 	Integer tmp;
-	tmp.value = sub(this->value, s.value);
+	tmp.value = sub(this->value, s.value, 1);
 	return tmp;
 }
 

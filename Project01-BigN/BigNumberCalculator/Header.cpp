@@ -33,6 +33,8 @@ string infix2posfix(string _infix) {
 		
 		//2022.04.23 [修正] 遇到負號不會分隔
 		if (!isdigit(_infix[i])) {
+
+			//左括號後負號不分隔
 			if (f && _infix[i] == '-') { //2022.04.24 [修正] 判別式
 				f = 0;
 				continue;
@@ -41,11 +43,15 @@ string infix2posfix(string _infix) {
 				f = 0;
 			}
 
+			//遇到左括號
 			if (_infix[i] == '(') f = 1;
 			else f = 0;
-			/*if (_infix[i] == '-' && isdigit(_infix[i + 1])) {
+			
+			//遇到未加括號的負數，不分隔 --2022.04.25
+			if (_infix[i] == '-' && !isdigit(_infix[i - 1])) {
 				continue;
-			}*/
+			}
+
 			_infix.insert(i, " ");
 			i++;
 			len++;
@@ -64,6 +70,7 @@ string infix2posfix(string _infix) {
 	vector<string>::iterator i;
 	//先收入所有元素
 	while (in >> s) {
+		//cout << "." << endl;
 		element.push_back(s);
 	}
 	int ssign = 0;//0:+ ; 1:- //紀錄正負號標記
@@ -72,12 +79,14 @@ string infix2posfix(string _infix) {
 
 	for (i = element.begin(); i != element.end(); i++) {
 		s = *i;
+		
 		if (i != element.end() - 1) {
 			snext = *(i + 1);
 		}
 		bool flag = 0;
 		switch (sign(s)) {
-		case 2: 
+		
+		case 2:
 			//正負號處理
 			if (i != element.begin() && count == 0) {
 				count++;
@@ -91,7 +100,10 @@ string infix2posfix(string _infix) {
 				}
 			}
 		case 3: case 4: case 5:
-			if (s == "*" && tmp.top() == "/") { //2022.04.23 [修正] 1/3*3 = 0.99999...  //TO-DO: 1/3+2/3
+			//2022.04.23 [修正] 1/3*3 = 0.99999...  //TO-DO: 1/3+2/3
+			//2022.04.25 [修正] stack empty error
+			if (!tmp.empty() && s == "*" && tmp.top() == "/") { 
+				//cout << "**\n";
 				string v = postfix.top();
 				postfix.pop();
 				postfix.push(snext);
@@ -100,12 +112,15 @@ string infix2posfix(string _infix) {
 				i++;
 				break;
 			}
+			
 			while (!tmp.empty() && sign(tmp.top()) >= sign(s)) {
+				
 				postfix.push(tmp.top());
 				//result += ' ';
 				//result += tmp.top();
 				tmp.pop();
 			}
+			
 			if (!flag) tmp.push(s);
 			
 			break;
@@ -134,6 +149,7 @@ string infix2posfix(string _infix) {
 			
 			break;
 		}
+		//cout << s << endl;
 		//result += ' ';
 	}
 	while (!tmp.empty()) {
@@ -254,11 +270,11 @@ string add(string s1, string s2) {
 	bool sign = 0;
 	if (s1[0] == '-' && s2[0] != '-') {
 		s1.erase(0, 1);
-		return sub(s2, s1);
+		return sub(s2, s1, 1);
 	}
 	else if (s2[0] == '-' && s1[0] != '-') {
 		s2.erase(0, 1);
-		return sub(s1, s2);
+		return sub(s1, s2, 1);
 	}
 	else if (s1[0] == '-' && s2[0] == '-') {
 		sign = 1;
@@ -293,7 +309,8 @@ string add(string s1, string s2) {
 }
 
 //已處裡小數部分(yuchen @ 2022.04.20)
-string sub(string s1, string s2) {
+string sub(string s1, string s2, int f) {
+	//cout << s1 << " " << s2 << endl;
 	string result = {};
 	bool sign = 0;
 	if (s1[0] == '-' && s2[0] != '-') {
@@ -312,6 +329,13 @@ string sub(string s1, string s2) {
 		s2.erase(0, 1);
 	}
 
+	if (f) { //次方呼叫，不執行這行
+		if (s1 == "0") {
+			s2 = '-' + s2;
+			return s2;
+		}
+	}
+	
 	int len = 0, borrow = 0, tmp = 0;
 	fill0(&s1, &s2);
 	len = s1.length();
@@ -322,9 +346,17 @@ string sub(string s1, string s2) {
 			continue;
 		}
 		tmp = (s1[i] - '0') - (s2[i] - '0') - borrow;
+		//cout <<s1<<"-" << i << ":" << tmp << " ";
 		if (tmp < 0) {
-			borrow = 1;
-			tmp += 10;
+			/*if ( f && i == 0)  {
+				cout << ".";
+				tmp = tmp * (-1);
+			}
+			else {*/
+				borrow = 1;
+				tmp += 10;
+			//}
+			
 		}
 		else {
 			borrow = 0;
@@ -350,6 +382,7 @@ string sub(string s1, string s2) {
 
 //已處裡小數部分(yuchen @ 2022.04.20)
 string multi(string s1, string s2) {
+
 	bool sign = 0;
 	if (s1[0] == '-' && s2[0] != '-') {
 		sign = 1;
@@ -474,7 +507,7 @@ string decimal100(string s1, string s2)
 		while (s1[0] != '-')
 		{
 			preS1 = s1;
-			s1 = sub(s1, s2);
+			s1 = sub(s1, s2, 1);
 			dCounter++;
 		}
 		s1 = preS1;
@@ -530,7 +563,7 @@ string divide(string s1, string s2)
 	else if (s1Len == s2Len)
 	{
 		// 直接decimal100
-		if (sub(s1, s2)[0] == '-')  result = "0." + decimal100(s1, s2);
+		if(sub(s1, s2, 1)[0] == '-')  result = "0." + decimal100(s1, s2);
 		else
 		{
 			string preS1 = s1;
@@ -538,7 +571,7 @@ string divide(string s1, string s2)
 			while (s1[0] != '-')
 			{
 				preS1 = s1;
-				s1 = sub(s1, s2);
+				s1 = sub(s1, s2, 1);
 				counter++;
 			}
 			// 把counter 加入result
@@ -565,7 +598,7 @@ string divide(string s1, string s2)
 			{
 				// 存下s1TempPre小於0之前的值
 				s1TempPre = s1Temp;
-				s1Temp = sub(s1Temp, s2);
+				s1Temp = sub(s1Temp, s2, 1);
 				counter++;
 			}
 			// 把counter 加入result
@@ -590,12 +623,230 @@ string fac(string s1) {
 	if (s1 == "0") return "1"; //2022.04.22 [新增] 0!定義
 	if (s1 == "1") return "1"; //2022.04.24 [修正] 1!無窮迴圈
 	string result = s1;
-	s1 = sub(s1, "1");
+	s1 = sub(s1, "1", 1);
 	while (s1 != "1") {
 		result = multi(result, s1);
-		s1 = sub(s1, "1");
+		s1 = sub(s1, "1", 1);
 	}
 	return result;
 }
 
 
+string power(string s1, string s2)
+{
+	double  guess1,c, r;
+	char ans;
+	int z, l,limit, num;
+	int len2 = s2.length();
+	int len3 = 0;
+	int j = 0;
+	int k = 0;
+	bool flag = 0;
+	string s3 = s1;
+	string n, guess;
+	string s4;
+	size_t found = s2.find(".");
+	size_t found3 = 0;
+	string check;
+	string added;
+	bool integer = 0;
+	
+	if (found != string::npos)//小數計算
+	{
+
+		if (s2[found + 1] == '5')//要開根號
+		{	
+			s2 = multi(s2, "2");
+			len2 = s2.length();
+			
+			if(s2[0]=='-')
+			{
+				for (int i = 1; i < len2; i++)
+				{
+					if (i != s2.find("."))
+					{
+						j = j + (s2[i] - 48) * pow(10, (len2 - i - 1));
+					}
+				}
+
+			}
+			else
+			{
+				for (int i = 0; i < len2; i++)
+				{
+					if (i != s2.find("."))
+					{
+						j = j + (s2[i] - 48) * pow(10, (len2 - i - 1));
+					}
+				}
+			}
+			
+			for (int i = 0; i < j - 1; i++)
+				{
+					s3 = multi(s1, s3);
+				}
+
+			len3 = s3.length();
+			found3 = s3.find(".");
+			if (found3 != string::npos)
+			{
+				for (int i = 0; i < 10000; i++)
+				{
+					s3 = s3 + "0";
+				}
+			}
+			else
+			{
+				s3 = s3 + ".";
+				for (int i = 0; i < 10000; i++)
+				{
+					s3 = s3 + "0";
+				}
+			}
+			found3 = s3.find(".");
+		
+			if ((found3-1) % 2 == 0)
+				{
+					n.push_back(s3[0]);
+					l = -1;
+				}
+			else
+				{
+					n.push_back(s3[0]);
+					n.push_back(s3[1]);
+					l = 0;
+				}
+			r = 0, num = 0;
+				
+			while (true)
+				{	
+					c = 0;
+					guess1 = c * (c + 20 * r);
+					guess = std::to_string(guess1);
+					
+					check = sub(n, guess, 0);
+					
+					while (check[0]!='-')
+						{
+							++c;
+							guess1 = c * (c + 20 * r);
+							guess = std::to_string(guess1);
+							check = sub(n, guess, 0);
+						}
+					--c;
+					guess1 = c * (c + 20 * r);
+					guess = std::to_string(guess1);
+					n = sub(n,guess, 0);
+					r = r * 10 + c; 
+					guess1 = c * (c + 20 * r);
+					guess = std::to_string(guess1);
+					ans = c + 48;
+					s4.push_back(ans);
+					
+					if (flag == true)
+						k++;
+					l += 2;
+					limit = l;
+
+					if (k > 100)
+						{	
+							break;
+						}
+					
+					if (s3[l] == '.')
+						{
+							l++;
+							k++;
+							flag = 1;
+							s4.push_back('.');
+						}
+					added.push_back(s3[l]);
+					added.push_back(s3[l + 1]);
+					n = add(multi(n , "100") , added);
+					check = sub(n, guess, 0);
+					added.pop_back();
+					added.pop_back();
+				}
+			s3 = s4;
+			if (s2[0] == '-')
+			{
+				s3 = divide("1", s3);
+			}
+		}
+		else
+		{
+			for (int i = found + 1; i < len2; i++)
+			{
+				if (s2[i] != '0')
+				{
+					integer = 0;
+					break;
+				}
+				else
+				{
+					integer = 1;
+				}
+			}
+			if (integer == 1)
+			{
+				for (int i = 0; i < found; i++)
+				{
+						j = j + (s2[i] - 48) * pow(10, (found - i -1));	
+				}
+				
+				for (int i = 0; i < j - 1; i++)
+				{
+					s3 = multi(s1, s3);
+				}
+
+			}
+			else
+			{
+				s3 = "illegal";
+			}
+		}
+
+
+	}
+	else
+	{
+	
+		if (s2[0] == '0')
+		{
+			s3 = "1";
+		}
+		else
+		{	if(s2[0]=='-')
+			{
+				for (int i = 1; i < len2; i++)
+				{
+					if (i != s2.find("."))
+					{
+						j = j + (s2[i] - 48) * pow(10, (len2 - i - 1));
+					}
+				}
+				
+			}
+			else
+			{
+				for (int i = 0; i < len2; i++)
+				{
+					if (i != s2.find("."))
+					{
+						j = j + (s2[i] - 48) * pow(10, (len2 - i - 1));
+					}
+				}
+			}
+			
+			for (int i = 0; i < j - 1; i++)
+			{
+				s3 = multi(s1, s3);	
+			}
+			if (s2[0] == '-')
+			{
+				s3 = divide("1", s3);
+			}			
+		}
+	}
+	return s3;
+}

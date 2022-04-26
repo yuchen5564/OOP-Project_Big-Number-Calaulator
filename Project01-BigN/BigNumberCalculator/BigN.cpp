@@ -10,21 +10,32 @@
 string BigN::countValue(string _in) {
 	bool errorCode = 0;
 	int len = _in.length();
+	int count = 0;
 	//2022.04.23 [新增] 去除不必要的空格，以避免後續判讀出問題
 	for (int i = 0; i < len; i++) {
 		if (_in[i] == ' ') {
 			_in.erase(i, 1);
 			len--;
 		}
+		if (_in[i] == '(' || _in[i] == ')') count++;
 	}
+
+	//檢查括號 --2022.04.25
+	if (count % 2 != 0) {
+		errorCode = 1;
+		cout << "[Error] Parentheses are not paired!\n";
+	}
+
 	//算式不合法
 	if (_in[0] == '*' || _in[0] == '/' || _in[0] == '^' || _in[0] == '!') {
 		errorCode = 1;
 		cout << "[Error] Please confirm the formula!\n";
 	}
 	if (_in.find("=") != string::npos) { //2022.04.22 [新增] 防呆，輸入結尾有=
-		errorCode = 1;
+		/*errorCode = 1;
 		cout << "[Error] Please remove \"=\"!\n";
+	*/
+		_in.erase(_in.find("="), 1);
 	}
 
 	if (!errorCode) {
@@ -40,14 +51,22 @@ string BigN::countValue(string _in) {
 			case 2:case 3:case 4:
 				s2 = tmp.top();
 				tmp.pop();
-				s1 = tmp.top();
-				tmp.pop();
+				//2022.04.25 [新增] error code: 算式不合法(ex. 1*/3)
+				if (tmp.empty()) {
+					errorCode = 1;
+					cout << "[Error] Please confirm the formula!\n";
+					break;
+				}
+				else {
+					s1 = tmp.top();
+					tmp.pop();
+				}
 				if (s == "+") {
 					tmp.push(add(s1, s2));	//2022.04.17
 					//tmp.push(s1 + s2);
 				}
 				else if (s == "-") {
-					tmp.push(sub(s1, s2));	//2022.04.17
+					tmp.push(sub(s1, s2, 1));	//2022.04.17
 				}
 				else if (s == "*") {
 					tmp.push(multi(s1, s2)); //2022.04.18
@@ -62,7 +81,12 @@ string BigN::countValue(string _in) {
 					}
 				}
 				else if (s == "^") {
-
+					string result = power(s1, s2);
+					if (result != "illegal")	tmp.push(power(s1, s2));
+					else {
+						errorCode = 1;
+						cout << "[Error] The power must be a multiple of 0.5\n";
+					}
 				}
 				break;
 			case 5: //2022.04.20 [新增] Error Code: 階乘內有小數點、數字是負數
@@ -191,10 +215,10 @@ void BigN::setVariale(string _in) {
 //For Test.
 void BigN::showVariale() {
 	vector<Variable>::iterator i;
-	cout << "\n================================\n";
+	cout << "=====Now in memory======\n";
 	cout << "Type\tName\tValue\n";
 	for (i = list.begin(); i != list.end(); i++) {
 		cout << i->dataType << "\t" << i->name << "\t" << i->value << "\n";
 	}
-	cout << "================================\n\n";
+	cout << "========================\n";
 }

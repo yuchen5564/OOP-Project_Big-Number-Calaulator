@@ -36,7 +36,7 @@ Decimal Decimal::operator+(Decimal s) {
 
 Decimal Decimal::operator-(Decimal s) {
 	Decimal tmp;
-	tmp.value = sub(this->value, s.value);
+	tmp.value = sub(this->value, s.value, 1);
 	return tmp;
 }
 
@@ -60,7 +60,7 @@ Decimal Decimal::operator+(Integer s){
 
 Decimal Decimal::operator-(Integer s){
 	string tmp = s.getValue();
-	this->value = sub(this->value, tmp);
+	this->value = sub(this->value, tmp, 1);
 	return *this;
 }
 
@@ -84,7 +84,7 @@ Decimal operator+(Integer s, Decimal d){
 
 Decimal operator-(Integer s, Decimal d){
 	string tmp;
-	tmp = sub(s.getValue(), d.value);
+	tmp = sub(s.getValue(), d.value, 0);
 	return Decimal(tmp);
 }
 

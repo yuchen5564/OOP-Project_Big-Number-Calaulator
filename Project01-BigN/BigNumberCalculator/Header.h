@@ -26,7 +26,7 @@ string infix2posfix(string _infix);
 
 //sud、add必須同時存在(會互相呼叫)
 string add(string s1, string s2);
-string sub(string s1, string s2);
+string sub(string s1, string s2, int f);
 
 string multi(string s1, string s2);
 string divide(string s1, string s2); //By ming. 
@@ -49,3 +49,4 @@ void dec2int(string& s1, string& s2);
 
 //每往下算一位s1就補零
 string decimal100(string s1, string s2);
+string power(string s1, string s2);
