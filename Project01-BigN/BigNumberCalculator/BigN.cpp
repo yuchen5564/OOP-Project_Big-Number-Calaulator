@@ -45,6 +45,7 @@ string BigN::countValue(string _in) {
 
 	if (!errorCode) {
 		string postfix = infix2posfix(_in);
+		cout << postfix << endl;
 		//cout << postfix << endl;
 		istringstream in(postfix);
 		stack<string> tmp;
@@ -121,6 +122,9 @@ string BigN::countValue(string _in) {
 						if (s1.find("Farction") != string::npos) {
 							tmp.push(countFarction(s1, s, s2));
 						}
+						else if (s2.find("Farction") != string::npos) {
+							tmp.push(countFarction(s2, s, s1));
+						}
 						else {
 							tmp.push(add(s1, s2));	//2022.04.17
 						}
@@ -130,6 +134,9 @@ string BigN::countValue(string _in) {
 					else if (s == "-") {
 						if (s1.find("Farction") != string::npos) {
 							tmp.push(countFarction(s1, s, s2));
+						}
+						else if(s2.find("Farction") != string::npos) {
+							tmp.push(countFarction(s2, s, s1));
 						}
 						else {
 							tmp.push(sub(s1, s2, 1));	//2022.04.17
@@ -370,7 +377,7 @@ string BigN::setFarction(string molecular, string denominator){
 	tmp.denominator = denominator;
 	tmp.molecular = molecular;
 	tmp.name = "Farction" + to_string(farctIndex);
-	//cout << tmp.name<<" "<<tmp.molecular << " " << tmp.denominator << endl;
+	cout << tmp.name<<" "<<tmp.molecular << " " << tmp.denominator << endl;
 	farct.push_back(tmp);
 	farctIndex++;
 	return tmp.name;
@@ -389,6 +396,7 @@ Farction BigN::findFarction(string name){
 }
 
 string BigN::countFarction(string name, string op, string s2){
+	//cout << s2 << endl;
 	Farction tmp = findFarction(name);
 	switch (op[0]){
 	case'+':
@@ -398,6 +406,9 @@ string BigN::countFarction(string name, string op, string s2){
 	case'-':
 		s2 = multi(tmp.denominator, s2);
 		tmp.molecular = sub(tmp.molecular, s2, 1);
+		if (s2 == "0") {
+			tmp.molecular = '-' + tmp.molecular;
+		}
 		break;
 	case'/':
 		tmp.denominator = multi(tmp.denominator, s2);
