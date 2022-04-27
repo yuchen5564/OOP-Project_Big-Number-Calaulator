@@ -1,18 +1,31 @@
 // File: Header.h
 // Creator: Yu-chen Kuo
-// Last Update: 2022/04/21
+// Last Update: 2022/04/27
 
 //放置所需的標頭檔案與全域函數
 //main.cpp請勿引入
 
 #pragma once
+
 #include <iostream>
 #include <string>
 #include <cmath>
 #include <stack>
 #include <vector>
 #include <sstream>
+#include <Windows.h>
+
+#define INPUT		"\n[Input] "
+#define RED			12
+#define WHITE		15
+#define ERROR(s)	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), RED);	\
+					cout << "[Error] " s << endl;									\
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), WHITE);
+#define SET_COLOR(s) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), s)
+
 using namespace std;
+
+
 
 // 運算子優先權
 // 輸入: 數值字串或運算子字串
@@ -26,7 +39,7 @@ string infix2posfix(string _infix);
 
 //sud、add必須同時存在(會互相呼叫)
 string add(string s1, string s2);
-string sub(string s1, string s2, int f);
+string sub(string s1, string s2, int f = 1);
 
 string multi(string s1, string s2);
 string divide(string s1, string s2); //By ming. 

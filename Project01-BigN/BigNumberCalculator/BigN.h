@@ -19,13 +19,19 @@ typedef struct {
 	string value; //數值		//2022.4.20 [更改] 型別
 }Variable;
 
+typedef struct {
+	string name;
+	string denominator;//分母
+	string molecular;//分子
+}Farction;
+
 class BigN{
 public:
 	//void processInput(string _in); //分析輸入算式
 	//void storeVariale(string _in); //儲存變數型態資料
 	string countValue(string _in); //計算算式(傳入為中序式) //2022.04.21 [更改] 回傳值
 	void setVariale(string _in); //設定變數
-
+	
 	//operator overloading
 	/*string operator+(string s) { 
 		string tmp = this;
@@ -34,12 +40,16 @@ public:
 
 	//...
 	void showVariale(); //For test.
-
+	string setFarction(string molecular, string denominator);
+	Farction findFarction(string name);
+	string countFarction(string name, string op, string s2);
 private:
 	string s1, s2;
 	//stack<string> number; //儲存數字(暫定)
 	//stack<char> sign; //儲存符號
 	vector<Variable> list; //儲存自訂變數
+	vector<Farction> farct;
+	int farctIndex = 0;
 };
 
 class Decimal {

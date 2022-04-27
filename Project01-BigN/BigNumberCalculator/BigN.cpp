@@ -1,9 +1,10 @@
 // File: BigN.cpp
 // Creator: Yu-chen Kuo
-// Last Update: 2022/04/24
+// Last Update: 2022/04/27
 
 //class函式內容
 
+//2022.04.27 [新增]分數運算
 
 #include "BigN.h"
 
@@ -24,13 +25,15 @@ string BigN::countValue(string _in) {
 	//檢查括號 --2022.04.25
 	if (count % 2 != 0) {
 		errorCode = 1;
-		cout << "[Error] Parentheses are not paired!\n";
+		ERROR("Parentheses are not paired!");
+		//cout << "[Error] Parentheses are not paired!\n";
 	}
 
 	//算式不合法
 	if (_in[0] == '*' || _in[0] == '/' || _in[0] == '^' || _in[0] == '!') {
 		errorCode = 1;
-		cout << "[Error] Please confirm the formula!\n";
+		ERROR("Please confirm the formula!");
+		//cout << "[Error] Please confirm the formula!\n";
 	}
 	//cout << _in << endl;
 	if (_in.find("=") != string::npos) { //2022.04.22 [新增] 防呆，輸入結尾有=
@@ -46,48 +49,150 @@ string BigN::countValue(string _in) {
 		istringstream in(postfix);
 		stack<string> tmp;
 		string s;// , result;// , s1, s2;
-
+		Farction fa1, fa2, fa3;
 		while (!errorCode && in >> s) {
 
 			switch (sign(s)) {
 			case 2:case 3:case 4:
-				s2 = tmp.top();
-				tmp.pop();
+				//2022.04.27 [新增] error code: 算式不合法(ex. 123+++)
+				if (tmp.empty()) {
+					errorCode = 1;
+					ERROR("Please confirm the formula!");
+					//cout << "[Error] Please confirm the formula!\n";
+					break;
+				}
+				else {
+					s2 = tmp.top();
+					tmp.pop();
+				}
 				//2022.04.25 [新增] error code: 算式不合法(ex. 1*/3)
 				if (tmp.empty()) {
 					errorCode = 1;
-					cout << "[Error] Please confirm the formula!\n";
+					ERROR("Please confirm the formula!");
+					//cout << "[Error] Please confirm the formula!\n";
 					break;
 				}
 				else {
 					s1 = tmp.top();
 					tmp.pop();
 				}
-				if (s == "+") {
-					tmp.push(add(s1, s2));	//2022.04.17
-					//tmp.push(s1 + s2);
-				}
-				else if (s == "-") {
-					tmp.push(sub(s1, s2, 1));	//2022.04.17
-				}
-				else if (s == "*") {
-					tmp.push(multi(s1, s2)); //2022.04.18
-				}
-				else if (s == "/") {
-					if (s2 == "0" || s2 == "0.0") { //2022.04.21 [新增] Error Code
-						errorCode = 1;
-						cout << "[Error] Divisor cannot be zero!\n";
+				
+				//分數處裡
+				if (s1.find("Farction") != string::npos && s2.find("Farction") != string::npos) {
+					fa1 = findFarction(s1);
+					fa2 = findFarction(s2);
+					
+					if (s == "+") {
+						fa3.denominator = multi(fa1.denominator, fa2.denominator);
+						fa3.molecular = add(multi(fa1.molecular, fa2.denominator), multi(fa2.molecular, fa1.denominator));
+						//tmp.push(setFarction(fa3.molecular, fa3.denominator));
 					}
-					else {
-						tmp.push(divide(s1, s2)); //2022.04.22 By ming.
+					else if (s == "-") {
+						fa3.denominator = multi(fa1.denominator, fa2.denominator);
+						fa3.molecular = sub(multi(fa1.molecular, fa2.denominator), multi(fa2.molecular, fa1.denominator));
+						//tmp.push(setFarction(fa3.molecular, fa3.denominator));
 					}
+					else if (s == "*") {
+						fa3.denominator = multi(fa1.denominator, fa2.denominator);
+						fa3.molecular = multi(fa1.molecular, fa2.molecular);
+					}
+					else if (s == "^") {
+						string po = divide(fa2.molecular, fa2.denominator);
+						if (po.find(".") != string::npos) {
+							int poLen = po.length();
+							if (po[poLen - 1] == '5' && po[poLen - 2] == '.') {
+								fa3.molecular = power(fa1.molecular, po);
+								fa3.denominator = power(fa1.denominator, po);
+							}
+							else {
+								errorCode = 1;
+								ERROR("The power must be a multiple of 0.5!");
+							}
+						}
+						else {
+							fa3.molecular = power(fa1.molecular, po);
+							fa3.denominator = power(fa1.denominator, po);
+						}
+					}
+					tmp.push(setFarction(fa3.molecular, fa3.denominator));
 				}
-				else if (s == "^") {
-					string result = power(s1, s2);
-					if (result != "illegal")	tmp.push(power(s1, s2));
-					else {
-						errorCode = 1;
-						cout << "[Error] The power must be a multiple of 0.5\n";
+				else {
+					if (s == "+") {
+						if (s1.find("Farction") != string::npos) {
+							tmp.push(countFarction(s1, s, s2));
+						}
+						else {
+							tmp.push(add(s1, s2));	//2022.04.17
+						}
+
+						//tmp.push(s1 + s2);
+					}
+					else if (s == "-") {
+						if (s1.find("Farction") != string::npos) {
+							tmp.push(countFarction(s1, s, s2));
+						}
+						else {
+							tmp.push(sub(s1, s2, 1));	//2022.04.17
+						}
+					}
+					else if (s == "*") {
+						tmp.push(multi(s1, s2)); //2022.04.18
+					}
+					else if (s == "/") {
+						if (s2 == "0" || s2 == "0.0") { //2022.04.21 [新增] Error Code
+							errorCode = 1;
+							ERROR("Divisor cannot be zero!");
+							//cout << "[Error] Divisor cannot be zero!\n";
+						}
+						else {
+							if (s1.find("Farction") == string::npos) {
+								tmp.push(setFarction(s1, s2));
+								break;
+							}
+							else if (s1.find("Farction") != string::npos) {
+								tmp.push(countFarction(s1, s, s2));
+								//cout << tmp.top() << endl;
+								break;
+							}
+							else {
+								tmp.push(divide(s1, s2)); //2022.04.22 By ming.
+							}
+
+						}
+					}
+					else if (s == "^") {
+						string result;
+						if (s1.find("Farction") != string::npos) {
+							fa1 = findFarction(s1);
+							result = power(fa1.molecular, s2);
+							if (result != "illegal") {
+								fa3.molecular = result;
+							}
+							else {
+								errorCode = 1;
+								ERROR("The power must be a multiple of 0.5!");
+								break;
+							}
+							result = power(fa1.denominator, s2);
+							if (result != "illegal") {
+								fa3.denominator = result;
+							}
+							else {
+								errorCode = 1;
+								ERROR("The power must be a multiple of 0.5!");
+								break;
+							}
+							tmp.push(setFarction(fa3.molecular,fa3.denominator));
+						}
+						else {
+							result = power(s1, s2);
+							if (result != "illegal") tmp.push(power(s1, s2));
+							else {
+								errorCode = 1;
+								ERROR("The power must be a multiple of 0.5!");
+								//cout << "[Error] The power must be a multiple of 0.5\n";
+							}
+						}
 					}
 				}
 				break;
@@ -95,13 +200,19 @@ string BigN::countValue(string _in) {
 				s1 = tmp.top();
 				tmp.pop();
 				s1 = clear0(s1);
+				if (s1.find("Farction") != string::npos) {
+					fa3 = findFarction(s1);
+					s1 = divide(fa3.molecular, fa3.denominator);
+				}
 				if (s1.find(".") != string::npos) { //2.0 ? allow
-					cout << "[Error] Factorial cannot have decimals!\n";
+					ERROR("Factorial cannot have decimals!");
+					//cout << "[Error] Factorial cannot have decimals!\n";
 					errorCode = 1;
 					break;
 				}
 				else if (s1[0] == '-') {
-					cout << "[Error] Factorial cannot be negative!\n";
+					ERROR("Factorial cannot be negative!");
+					//cout << "[Error] Factorial cannot be negative!\n";
 					errorCode = 1;
 					break;
 				}
@@ -136,19 +247,30 @@ string BigN::countValue(string _in) {
 					}
 					if (flag) tmp.push(s);
 					else {
-						cout << "[Error] \"" << s << "\" variable not found!\n";
+						ERROR("\"" + s + "\" variable not found!");
+						//cout << "[Error] \"" << s << "\" variable not found!\n";
 						errorCode = 1;
 					}
 				}
 				break;
 			}
 		}
-		if(!errorCode) return tmp.top();
+		if (!errorCode) {
+			if (tmp.top().find("Farction") == string::npos) {
+				return tmp.top();
+			}
+			else {
+				Farction fa = findFarction(tmp.top());
+				return divide(fa.molecular, fa.denominator);
+			}
+		}	
 	}
 	return "Error";
 }
 
 void BigN::setVariale(string _in) {
+
+	bool errorCode = 0;
 	
 	//字元分隔
 	_in = splitString(_in);
@@ -191,7 +313,9 @@ void BigN::setVariale(string _in) {
 			}
 		}
 		else {
-			cout << "[Error] Data type not found!\n";
+			errorCode = 1;
+			ERROR("Data type not found!");
+			//cout << "[Error] Data type not found!\n";
 		}
 	}
 	else { //輸入: A = 10 + 5 || A = A + A
@@ -214,17 +338,70 @@ void BigN::setVariale(string _in) {
 				}
 			}
 		}
-		if(!find) cout << "[Error] \"" << tmp << "\" variable not found!\n";
+		if (!find) {
+			ERROR("\"" + tmp + "\" variable not found!");
+			errorCode = 1;
+		}
+		
+		
+		 //cout << "[Error] \"" << tmp << "\" variable not found!\n";
 	}
+	//2022.04.27 [修改] 輸出列表時機
+	if (!errorCode) showVariale();
 }
 
 //For Test.
 void BigN::showVariale() {
 	vector<Variable>::iterator i;
+	SET_COLOR(14);
 	cout << "=====Now in memory======\n";
 	cout << "Type\tName\tValue\n";
+	cout << "------------------------\n";
 	for (i = list.begin(); i != list.end(); i++) {
 		cout << i->dataType << "\t" << i->name << "\t" << i->value << "\n";
 	}
 	cout << "========================\n";
+	SET_COLOR(15);
+	
+}
+
+string BigN::setFarction(string molecular, string denominator){
+	Farction tmp;
+	tmp.denominator = denominator;
+	tmp.molecular = molecular;
+	tmp.name = "Farction" + to_string(farctIndex);
+	//cout << tmp.name<<" "<<tmp.molecular << " " << tmp.denominator << endl;
+	farct.push_back(tmp);
+	farctIndex++;
+	return tmp.name;
+}
+
+Farction BigN::findFarction(string name){
+	Farction tmp;
+	vector<Farction>::iterator i;
+	for (i = farct.begin(); i != farct.end(); i++) {
+		if (name == i->name) {
+			tmp = *i;
+			break;
+		}
+	}
+	return tmp;
+}
+
+string BigN::countFarction(string name, string op, string s2){
+	Farction tmp = findFarction(name);
+	switch (op[0]){
+	case'+':
+		s2 = multi(tmp.denominator, s2);
+		tmp.molecular = add(tmp.molecular, s2);
+		break;
+	case'-':
+		s2 = multi(tmp.denominator, s2);
+		tmp.molecular = sub(tmp.molecular, s2, 1);
+		break;
+	case'/':
+		tmp.denominator = multi(tmp.denominator, s2);
+	}
+	//cout << tmp.molecular << " " << tmp.denominator << endl;
+	return setFarction(tmp.molecular, tmp.denominator);
 }
