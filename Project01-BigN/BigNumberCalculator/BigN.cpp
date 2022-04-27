@@ -45,7 +45,7 @@ string BigN::countValue(string _in) {
 
 	if (!errorCode) {
 		string postfix = infix2posfix(_in);
-		cout << postfix << endl;
+		//cout << postfix << endl;
 		//cout << postfix << endl;
 		istringstream in(postfix);
 		stack<string> tmp;
@@ -169,7 +169,13 @@ string BigN::countValue(string _in) {
 					}
 					else if (s == "^") {
 						string result;
+						//cout << s1 << " " << s2 << endl;
 						if (s1.find("Farction") != string::npos) {
+							if (s2.find("Farction") != string::npos) {
+								fa2 = findFarction(s2);
+								s2 = divide(fa2.molecular, fa2.denominator);
+								cout << s2 << endl;
+							}
 							fa1 = findFarction(s1);
 							result = power(fa1.molecular, s2);
 							if (result != "illegal") {
@@ -190,6 +196,20 @@ string BigN::countValue(string _in) {
 								break;
 							}
 							tmp.push(setFarction(fa3.molecular,fa3.denominator));
+						}
+						else if (s2.find("Farction") != string::npos) {
+							fa2 = findFarction(s2);
+							s2 = divide(fa2.molecular, fa2.denominator);
+							//cout << s2 << endl;
+							result = power(s1, s2);
+							if (result != "illegal") {
+								tmp.push(result);
+							}
+							else {
+								errorCode = 1;
+								ERROR("The power must be a multiple of 0.5!");
+								break;
+							}
 						}
 						else {
 							result = power(s1, s2);
@@ -377,7 +397,7 @@ string BigN::setFarction(string molecular, string denominator){
 	tmp.denominator = denominator;
 	tmp.molecular = molecular;
 	tmp.name = "Farction" + to_string(farctIndex);
-	cout << tmp.name<<" "<<tmp.molecular << " " << tmp.denominator << endl;
+	//cout << tmp.name<<" "<<tmp.molecular << " " << tmp.denominator << endl;
 	farct.push_back(tmp);
 	farctIndex++;
 	return tmp.name;
