@@ -185,7 +185,6 @@ string BigN::countValue(string _in) {
 					}
 					//運算*
 					else if (s == "*") {
-
 						//其中一個數是分數
 						if (s1.find("Farction") != string::npos) {
 							tmp.push(countFarction(s1, s, s2));
@@ -581,6 +580,8 @@ string BigN::countFarction(string name, string op, string s2){
 		break;
 	case'/':
 		tmp.denominator = multi(tmp.denominator, s2);
+	case'*':
+		tmp.molecular = multi(tmp.molecular,s2);
 	}
 	return setFarction(tmp.molecular, tmp.denominator);
 }
