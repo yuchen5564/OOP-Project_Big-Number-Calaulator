@@ -4,15 +4,35 @@
 
 //class函式內容
 
-//2022.04.27 [新增]分數運算
+//2022.04.27 [新增] 分數運算
+//2022.04.28 [新增] 輸出小數100位
 
 #include "BigN.h"
 
+//輸入若有小數，輸出也要有小數100位
+void fill100(string* s) {
+
+	//尋找小數點
+	if (s->find(".") == string::npos) {
+		*s = *s + '.';
+	}
+
+	int dec = s->find(".");
+	int len = s->length();
+
+	//補0
+	for (int i = 0; i < 100-(len - dec - 1); i++) {
+		*s = *s + '0';
+	}
+}
+
 string BigN::countValue(string _in) {
-	bool errorCode = 0;
+	bool decPoint = 0; //紀錄是否有小數點出現
+	bool errorCode = 0; //紀錄是否有error出現
 	int len = _in.length();
 	int count = 0;
 	string result;
+
 	//2022.04.23 [新增] 去除不必要的空格，以避免後續判讀出問題
 	for (int i = 0; i < len; i++) {
 		if (_in[i] == ' ') {
@@ -26,81 +46,89 @@ string BigN::countValue(string _in) {
 	if (count % 2 != 0) {
 		errorCode = 1;
 		ERROR("Parentheses are not paired!");
-		//cout << "[Error] Parentheses are not paired!\n";
 	}
 
 	//算式不合法
 	if (_in[0] == '*' || _in[0] == '/' || _in[0] == '^' || _in[0] == '!') {
 		errorCode = 1;
 		ERROR("Please confirm the formula!");
-		//cout << "[Error] Please confirm the formula!\n";
 	}
-	//cout << _in << endl;
-	if (_in.find("=") != string::npos) { //2022.04.22 [新增] 防呆，輸入結尾有=
-				
-		_in.erase(_in.find("="), 1);
-		//return result;
-	}
-	//cout << _in << endl;
 
+	//去除結尾=
+	if (_in.find("=") != string::npos) { //2022.04.22 [新增] 防呆，輸入結尾有=		
+		_in.erase(_in.find("="), 1);
+	}
+
+	//開始計算
 	if (!errorCode) {
-		string postfix = infix2posfix(_in);
-		//cout << postfix << endl;
-		//cout << postfix << endl;
-		istringstream in(postfix);
-		stack<string> tmp;
-		string s;// , result;// , s1, s2;
-		Farction fa1, fa2, fa3;
+		string postfix = infix2posfix(_in); //轉換為後序式
+		istringstream in(postfix); //接收輸入
+		stack<string> tmp; //暫存stack
+		string s; //目前輸入
+		Farction fa1, fa2, fa3; //暫存分數
+
 		while (!errorCode && in >> s) {
 
+			//紀錄算式中是否有小數點出現，若有需補齊小數位數100位
+			if (s.find(".") != string::npos) decPoint = 1;
+
+			//分析當前輸入
 			switch (sign(s)) {
-			case 2:case 3:case 4:
+			case 2:case 3:case 4: //輸入: +-*/^
+
+				//算式不合法
 				//2022.04.27 [新增] error code: 算式不合法(ex. 123+++)
 				if (tmp.empty()) {
 					errorCode = 1;
 					ERROR("Please confirm the formula!");
-					//cout << "[Error] Please confirm the formula!\n";
 					break;
 				}
 				else {
-					s2 = tmp.top();
+					s2 = tmp.top(); //接收第一個數
 					tmp.pop();
 				}
+
+				//算式不合法
 				//2022.04.25 [新增] error code: 算式不合法(ex. 1*/3)
 				if (tmp.empty()) {
 					errorCode = 1;
 					ERROR("Please confirm the formula!");
-					//cout << "[Error] Please confirm the formula!\n";
 					break;
 				}
 				else {
-					s1 = tmp.top();
+					s1 = tmp.top(); //接收第二個數
 					tmp.pop();
 				}
 				
-				//分數處裡
+				//分數處理(兩個數都是分數)
 				if (s1.find("Farction") != string::npos && s2.find("Farction") != string::npos) {
 					fa1 = findFarction(s1);
 					fa2 = findFarction(s2);
 					
+					//運算+
 					if (s == "+") {
 						fa3.denominator = multi(fa1.denominator, fa2.denominator);
 						fa3.molecular = add(multi(fa1.molecular, fa2.denominator), multi(fa2.molecular, fa1.denominator));
 						//tmp.push(setFarction(fa3.molecular, fa3.denominator));
 					}
+					//運算-
 					else if (s == "-") {
 						fa3.denominator = multi(fa1.denominator, fa2.denominator);
 						fa3.molecular = sub(multi(fa1.molecular, fa2.denominator), multi(fa2.molecular, fa1.denominator));
 						//tmp.push(setFarction(fa3.molecular, fa3.denominator));
 					}
+					//運算*
 					else if (s == "*") {
 						fa3.denominator = multi(fa1.denominator, fa2.denominator);
 						fa3.molecular = multi(fa1.molecular, fa2.molecular);
 					}
+					//運算^
 					else if (s == "^") {
 						string po = divide(fa2.molecular, fa2.denominator);
+
 						if (po.find(".") != string::npos) {
 							int poLen = po.length();
+
 							if (po[poLen - 1] == '5' && po[poLen - 2] == '.') {
 								fa3.molecular = power(fa1.molecular, po);
 								fa3.denominator = power(fa1.denominator, po);
@@ -109,75 +137,117 @@ string BigN::countValue(string _in) {
 								errorCode = 1;
 								ERROR("The power must be a multiple of 0.5!");
 							}
+
 						}
 						else {
 							fa3.molecular = power(fa1.molecular, po);
 							fa3.denominator = power(fa1.denominator, po);
 						}
+
 					}
+
 					tmp.push(setFarction(fa3.molecular, fa3.denominator));
 				}
+				//其餘運算(都不是分數、其中一個是分數)
 				else {
+
+					//運算+
 					if (s == "+") {
+
+						//其中一個數是分數
 						if (s1.find("Farction") != string::npos) {
 							tmp.push(countFarction(s1, s, s2));
 						}
 						else if (s2.find("Farction") != string::npos) {
 							tmp.push(countFarction(s2, s, s1));
 						}
+						//都不是分數
 						else {
 							tmp.push(add(s1, s2));	//2022.04.17
 						}
 
-						//tmp.push(s1 + s2);
 					}
+					//運算-
 					else if (s == "-") {
+
+						//其中一個數是分數
 						if (s1.find("Farction") != string::npos) {
 							tmp.push(countFarction(s1, s, s2));
 						}
 						else if(s2.find("Farction") != string::npos) {
 							tmp.push(countFarction(s2, s, s1));
 						}
+						//都不是分數
 						else {
 							tmp.push(sub(s1, s2, 1));	//2022.04.17
 						}
+
 					}
+					//運算*
 					else if (s == "*") {
-						tmp.push(multi(s1, s2)); //2022.04.18
+
+						//其中一個數是分數
+						if (s1.find("Farction") != string::npos) {
+							tmp.push(countFarction(s1, s, s2));
+						}
+						else if (s2.find("Farction") != string::npos) {
+							tmp.push(countFarction(s2, s, s1));
+						}
+						//都不是分數
+						else {
+							tmp.push(multi(s1, s2)); //2022.04.18
+						}
+
 					}
+					//運算/
 					else if (s == "/") {
+
+						//如果分母是0，輸出Error
 						if (s2 == "0" || s2 == "0.0") { //2022.04.21 [新增] Error Code
 							errorCode = 1;
 							ERROR("Divisor cannot be zero!");
 							//cout << "[Error] Divisor cannot be zero!\n";
 						}
+						//分母不是0
 						else {
+							
+							//其中一個數是分數
 							if (s1.find("Farction") == string::npos) {
 								tmp.push(setFarction(s1, s2));
 								break;
 							}
 							else if (s1.find("Farction") != string::npos) {
 								tmp.push(countFarction(s1, s, s2));
-								//cout << tmp.top() << endl;
 								break;
 							}
+							//都不是分數
 							else {
 								tmp.push(divide(s1, s2)); //2022.04.22 By ming.
 							}
 
 						}
+
 					}
+					//運算^
 					else if (s == "^") {
 						string result;
-						//cout << s1 << " " << s2 << endl;
+
+						//其中一個數是分數
 						if (s1.find("Farction") != string::npos) {
+
+							//另一數也是分數
 							if (s2.find("Farction") != string::npos) {
 								fa2 = findFarction(s2);
 								s2 = divide(fa2.molecular, fa2.denominator);
 								cout << s2 << endl;
 							}
+
 							fa1 = findFarction(s1);
-							result = power(fa1.molecular, s2);
+
+							//計算分子
+							result = power(fa1.molecular, s2); 
+
+							//輸入不合法
 							if (result != "illegal") {
 								fa3.molecular = result;
 							}
@@ -186,7 +256,11 @@ string BigN::countValue(string _in) {
 								ERROR("The power must be a multiple of 0.5!");
 								break;
 							}
+
+							//計算分母
 							result = power(fa1.denominator, s2);
+
+							//輸入不合法
 							if (result != "illegal") {
 								fa3.denominator = result;
 							}
@@ -195,13 +269,19 @@ string BigN::countValue(string _in) {
 								ERROR("The power must be a multiple of 0.5!");
 								break;
 							}
+
 							tmp.push(setFarction(fa3.molecular,fa3.denominator));
+
 						}
 						else if (s2.find("Farction") != string::npos) {
+
 							fa2 = findFarction(s2);
 							s2 = divide(fa2.molecular, fa2.denominator);
-							//cout << s2 << endl;
+
+							//計算
 							result = power(s1, s2);
+
+							//輸入不合法
 							if (result != "illegal") {
 								tmp.push(result);
 							}
@@ -210,48 +290,64 @@ string BigN::countValue(string _in) {
 								ERROR("The power must be a multiple of 0.5!");
 								break;
 							}
+
 						}
+						//都不是分數
 						else {
 							result = power(s1, s2);
+
+							//輸入不合法
 							if (result != "illegal") tmp.push(power(s1, s2));
 							else {
 								errorCode = 1;
 								ERROR("The power must be a multiple of 0.5!");
 								//cout << "[Error] The power must be a multiple of 0.5\n";
 							}
+
 						}
+
 					}
+
 				}
 				break;
-			case 5: //2022.04.20 [新增] Error Code: 階乘內有小數點、數字是負數
+			case 5: //輸入! //2022.04.20 [新增] Error Code: 階乘內有小數點、數字是負數
 				s1 = tmp.top();
 				tmp.pop();
 				s1 = clear0(s1);
+
+				//是分數
 				if (s1.find("Farction") != string::npos) {
 					fa3 = findFarction(s1);
 					s1 = divide(fa3.molecular, fa3.denominator);
 				}
+
+				//不允許小數點
 				if (s1.find(".") != string::npos) { //2.0 ? allow
 					ERROR("Factorial cannot have decimals!");
-					//cout << "[Error] Factorial cannot have decimals!\n";
 					errorCode = 1;
 					break;
 				}
+				//不允許負數
 				else if (s1[0] == '-') {
 					ERROR("Factorial cannot be negative!");
-					//cout << "[Error] Factorial cannot be negative!\n";
 					errorCode = 1;
 					break;
 				}
+				//正常計算
 				else {
 					tmp.push(fac(s1));
 				}
+
 				break;
-			default:
-				//if (s == "=") break;
+			default: //輸入不是符號
+
+				//清除開頭+
 				if (s[0] == '+') s.erase(0, 1);
+
 				int len = s.length();
 				bool flag = 1;
+
+				//判斷是否有非數字字元
 				for (int i = 0; i < len; i++) {
 					if (s[0] == '-') break;
 					if (s.find(".") != string::npos) break;
@@ -260,92 +356,148 @@ string BigN::countValue(string _in) {
 						break;
 					}
 				}
+
+				//都是數字，放入堆疊
 				if (flag) tmp.push(s);
+				//非全數字，檢查變數
 				else {
 					vector<Variable>::iterator i;
 					flag = 0;
+
+					//尋訪變數
 					for (i = list.begin(); i != list.end(); i++) {
+
+						//找到
 						if (s == i->name) {
 							s = i->value;
-							//cout <<s<<" "<< i->value << endl;
 							flag = 1;
 							break;
 						}
+
 					}
+
+					//有找到
 					if (flag) tmp.push(s);
+					//沒找到
 					else {
 						ERROR("\"" + s + "\" variable not found!");
 						//cout << "[Error] \"" << s << "\" variable not found!\n";
 						errorCode = 1;
 					}
+
 				}
+
 				break;
 			}
+
 		}
+
+		string t;
+
+		//回傳(沒有error)
 		if (!errorCode) {
+
+			//非分數
 			if (tmp.top().find("Farction") == string::npos) {
-				return tmp.top();
+
+				//有出現過小數點
+				if (decPoint) {
+					t = tmp.top();
+					fill100(&t);
+					return t;
+				}
+				else {
+					return tmp.top();
+				}
+
 			}
+			//是分數
 			else {
 				Farction fa = findFarction(tmp.top());
-				return divide(fa.molecular, fa.denominator);
+				t = divide(fa.molecular, fa.denominator);
+
+				//有出現過小數點
+				if (decPoint) fill100(&t);
+				//本身有小數點
+				else if (t.find(".") != string::npos) fill100(&t);
+
+				return t;
 			}
+
 		}	
 	}
+	
+	//回傳(有Error)
 	return "Error";
 }
 
-void BigN::setVariale(string _in) {
 
+void BigN::setVariale(string _in) {
 	bool errorCode = 0;
 	
 	//字元分隔
 	_in = splitString(_in);
+
 	//接收資料
 	stringstream in(_in);
 	string tmp;
 	Variable var;
 	string value = {};
 	
+	//輸入
 	in >> tmp;
 
-	if (tmp == "Set") { //輸入: Set Integer/Decimal A = 10
+	//輸入: Set Integer/Decimal A = 10
+	if (tmp == "Set") { 
+
+		//接收其他資訊
 		in >> tmp;
 		var.dataType = tmp;
 		in >> tmp;
 		var.name = tmp;
 		in >> tmp;
+
 		while (in >> tmp) {
 			value += (' ' + tmp);
 		}
 
+		//型別正確
 		if (var.dataType == "Integer" || var.dataType == "Decimal") {
-			var.value = countValue(value);
-			if (var.value != "Error") {
+			var.value = countValue(value); //計算數值
 
+			if (var.value != "Error") {
+				
 				//去除不合型別的部分
 				if (var.dataType == "Integer") checkInteger(&var.value);
 
 				//尋找是否已存在
 				bool find = 0;
 				vector<Variable>::iterator i;
+
 				for (i = list.begin(); i != list.end(); i++) {
+
+					//有找到
 					if (var.name == i->name) {
 						i->dataType = var.dataType;
 						i->value = var.value;
 						find = 1;
 					}
+
 				}
+
+				//未找到
 				if (!find) list.push_back(var);
 			}
 		}
+		//有錯誤
 		else {
 			errorCode = 1;
 			ERROR("Data type not found!");
-			//cout << "[Error] Data type not found!\n";
 		}
+
 	}
-	else { //輸入: A = 10 + 5 || A = A + A
+	//輸入: A = 10 + 5 || A = A + A
+	else { 
 		bool find = 0;
 		vector<Variable>::iterator i;
 		for (i = list.begin(); i != list.end(); i++) {
@@ -363,15 +515,13 @@ void BigN::setVariale(string _in) {
 					}
 					i->value = value;
 				}
+				break;	//2022.04.28 [修正] 給值問題
 			}
 		}
 		if (!find) {
 			ERROR("\"" + tmp + "\" variable not found!");
 			errorCode = 1;
 		}
-		
-		
-		 //cout << "[Error] \"" << tmp << "\" variable not found!\n";
 	}
 	//2022.04.27 [修改] 輸出列表時機
 	if (!errorCode) showVariale();
@@ -397,7 +547,6 @@ string BigN::setFarction(string molecular, string denominator){
 	tmp.denominator = denominator;
 	tmp.molecular = molecular;
 	tmp.name = "Farction" + to_string(farctIndex);
-	//cout << tmp.name<<" "<<tmp.molecular << " " << tmp.denominator << endl;
 	farct.push_back(tmp);
 	farctIndex++;
 	return tmp.name;
@@ -433,6 +582,5 @@ string BigN::countFarction(string name, string op, string s2){
 	case'/':
 		tmp.denominator = multi(tmp.denominator, s2);
 	}
-	//cout << tmp.molecular << " " << tmp.denominator << endl;
 	return setFarction(tmp.molecular, tmp.denominator);
 }

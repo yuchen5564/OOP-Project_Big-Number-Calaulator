@@ -87,7 +87,6 @@ string infix2posfix(string _infix) {
 	//2022.04.22 [新增] 輸入無空格，先分隔運算元與元素
 	if (_infix[0] == '-') _infix = '0' + _infix;	//2022.04.24 [修正] 負號在首階乘問題
 	_infix = splitString(_infix);
-	//cout << _infix << endl;
 	istringstream in(_infix);
 	stack<string> tmp; //暫存運算元
 	stack<string>postfix;
@@ -97,7 +96,6 @@ string infix2posfix(string _infix) {
 	vector<string>::iterator i;
 	//先收入所有元素
 	while (in >> s) {
-		//cout << "." << endl;
 		element.push_back(s);
 	}
 	int ssign = 0;//0:+ ; 1:- //紀錄正負號標記
@@ -130,7 +128,6 @@ string infix2posfix(string _infix) {
 			//2022.04.23 [修正] 1/3*3 = 0.99999...  //TO-DO: 1/3+2/3
 			//2022.04.25 [修正] stack empty error
 			if (!tmp.empty() && s == "*" && tmp.top() == "/") { 
-				//cout << "**\n";
 				string v = postfix.top();
 				postfix.pop();
 				postfix.push(snext);
@@ -141,10 +138,7 @@ string infix2posfix(string _infix) {
 			}
 			
 			while (!tmp.empty() && sign(tmp.top()) >= sign(s)) {
-				
 				postfix.push(tmp.top());
-				//result += ' ';
-				//result += tmp.top();
 				tmp.pop();
 			}
 			
@@ -157,9 +151,6 @@ string infix2posfix(string _infix) {
 		case 1:	// ")"
 			while (tmp.top() != "(") {
 				postfix.push(tmp.top());
-				/*result += ' ';
-				result += tmp.top();*/
-				
 				tmp.pop();
 			}
 			tmp.pop();
@@ -171,25 +162,17 @@ string infix2posfix(string _infix) {
 			ssign = 0; //記錄重置
 			count = 0; //記錄重置
 			postfix.push(s);
-			/*result += ' ';
-			result += s;*/
-			
 			break;
 		}
-		//cout << s << endl;
-		//result += ' ';
 	}
 	while (!tmp.empty()) {
 		postfix.push(tmp.top());
-		/*result += ' ';
-		result += tmp.top();*/
 		tmp.pop();
 	}
 	while (!postfix.empty()) {
 		result =  postfix.top() + ' ' + result;
 		postfix.pop();
 	}
-	//cout << result << endl;
 	return result;
 }
 
@@ -265,7 +248,6 @@ string clear0(string s) {
 		if (s[i] != '0') break;
 		else count++;
 	}
-	//if (count == len) s = "0";
 	if (s[0] == '-') s.erase(1, count);
 	else s.erase(0, count);
 
@@ -277,7 +259,6 @@ string clear0(string s) {
 			if (s[i] != '0') break;
 			else count++;
 		}
-		//cout << "====" << count << endl;
 		s.erase(len - count, count);
 		len = s.length();
 		if (s[len - 1] == '.') s.erase(len - 1, 1);
@@ -337,7 +318,6 @@ string add(string s1, string s2) {
 
 //已處裡小數部分(yuchen @ 2022.04.20)
 string sub(string s1, string s2, int f) {
-	//cout << s1 << " " << s2 << endl;
 	string result = {};
 	bool sign = 0;
 	if (s1[0] == '-' && s2[0] != '-') {
@@ -373,17 +353,9 @@ string sub(string s1, string s2, int f) {
 			continue;
 		}
 		tmp = (s1[i] - '0') - (s2[i] - '0') - borrow;
-		//cout <<s1<<"-" << i << ":" << tmp << " ";
 		if (tmp < 0) {
-			/*if ( f && i == 0)  {
-				cout << ".";
-				tmp = tmp * (-1);
-			}
-			else {*/
-				borrow = 1;
-				tmp += 10;
-			//}
-			
+			borrow = 1;
+			tmp += 10;
 		}
 		else {
 			borrow = 0;

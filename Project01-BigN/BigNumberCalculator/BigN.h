@@ -9,49 +9,45 @@
 #pragma once
 #include "Header.h"
 
+//初始宣告
 class BigN;
 class Integer;
 class Deciaml;
 
+//紀錄變數struct
 typedef struct {
 	string dataType; //變數型態
 	string name; //變數名稱
 	string value; //數值		//2022.4.20 [更改] 型別
 }Variable;
 
+//紀錄分數struct
 typedef struct {
 	string name;
 	string denominator;//分母
 	string molecular;//分子
 }Farction;
 
+//大數運算class
 class BigN{
 public:
-	//void processInput(string _in); //分析輸入算式
-	//void storeVariale(string _in); //儲存變數型態資料
 	string countValue(string _in); //計算算式(傳入為中序式) //2022.04.21 [更改] 回傳值
 	void setVariale(string _in); //設定變數
-	
-	//operator overloading
-	/*string operator+(string s) { 
-		string tmp = this;
-		return add(tmp, s);
-	}*/
+	void showVariale(); //列印儲存的變數
 
-	//...
-	void showVariale(); //For test.
-	string setFarction(string molecular, string denominator);
-	Farction findFarction(string name);
-	string countFarction(string name, string op, string s2);
+	//2022.04.27 [新增] 分數運算
+	string setFarction(string molecular, string denominator); //設定分數
+	Farction findFarction(string name); //尋找分數
+	string countFarction(string name, string op, string s2); //計算分數
+
 private:
-	string s1, s2;
-	//stack<string> number; //儲存數字(暫定)
-	//stack<char> sign; //儲存符號
+	string s1, s2; //計算暫存
 	vector<Variable> list; //儲存自訂變數
-	vector<Farction> farct;
-	int farctIndex = 0;
+	vector<Farction> farct; //儲存分數
+	unsigned int farctIndex = 0; //分數計數器(命名用)
 };
 
+//小數class
 class Decimal {
 public:
 	Decimal() { value = "0.0"; }
@@ -90,6 +86,7 @@ private:
 	string value;
 };
 
+//整數class
 class Integer {
 public:
 	Integer() { value = "0"; }
@@ -113,7 +110,6 @@ public:
 
 private:
 	string value;
-	//	int a;
 };
 
 
