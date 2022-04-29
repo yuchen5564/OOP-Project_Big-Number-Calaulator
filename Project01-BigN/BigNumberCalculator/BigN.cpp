@@ -462,7 +462,7 @@ void BigN::setVariale(string _in) {
 
 		//型別正確
 		if (var.dataType == "Integer" || var.dataType == "Decimal") {
-			var.value = countValue(value); //計算數值
+			var.value = clear0(countValue(value)); //計算數值
 
 			if (var.value != "Error") {
 				
@@ -507,7 +507,7 @@ void BigN::setVariale(string _in) {
 					value += (' ' + tmp);
 				}
 				value = countValue(value);
-				if (var.value != "Error") {
+				if (value != "Error") {
 					if (i->dataType == "Integer" && value.find(".") != string::npos) {
 						int pos = value.find(".");
 						value.erase(pos);
