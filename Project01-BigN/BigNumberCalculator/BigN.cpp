@@ -12,6 +12,7 @@
 //块璝Τ计块璶Τ计100
 void fill100(string* s) {
 
+#ifdef FILL100
 	//碝т计翴
 	if (s->find(".") == string::npos) {
 		*s = *s + '.';
@@ -21,9 +22,11 @@ void fill100(string* s) {
 	int len = s->length();
 
 	//干0
-	for (int i = 0; i < 100-(len - dec - 1); i++) {
+	for (int i = 0; i < 100 - (len - dec - 1); i++) {
 		*s = *s + '0';
 	}
+#endif // FILL100
+
 }
 
 string BigN::countValue(string _in) {
@@ -125,7 +128,7 @@ string BigN::countValue(string _in) {
 					//笲衡^
 					else if (s == "^") {
 						string po = divide(fa2.molecular, fa2.denominator);
-
+						//cout << po << endl;
 						if (po.find(".") != string::npos) {
 							int poLen = po.length();
 
@@ -230,7 +233,7 @@ string BigN::countValue(string _in) {
 					//笲衡^
 					else if (s == "^") {
 						string result;
-
+						//cout << s1 << " " << s2 << endl;
 						//ㄤい计琌だ计
 						if (s1.find("Farction") != string::npos) {
 
@@ -238,7 +241,7 @@ string BigN::countValue(string _in) {
 							if (s2.find("Farction") != string::npos) {
 								fa2 = findFarction(s2);
 								s2 = divide(fa2.molecular, fa2.denominator);
-								cout << s2 << endl;
+								//cout << s2 << endl;
 							}
 
 							fa1 = findFarction(s1);
@@ -304,7 +307,7 @@ string BigN::countValue(string _in) {
 							}
 
 						}
-
+						//cout << result << endl;
 					}
 
 				}
@@ -546,6 +549,7 @@ string BigN::setFarction(string molecular, string denominator){
 	tmp.denominator = denominator;
 	tmp.molecular = molecular;
 	tmp.name = "Farction" + to_string(farctIndex);
+	//cout << tmp.name << " " << tmp.molecular << " " << tmp.denominator << endl;
 	farct.push_back(tmp);
 	farctIndex++;
 	return tmp.name;
@@ -580,8 +584,10 @@ string BigN::countFarction(string name, string op, string s2){
 		break;
 	case'/':
 		tmp.denominator = multi(tmp.denominator, s2);
+		break;
 	case'*':
 		tmp.molecular = multi(tmp.molecular,s2);
+		break;
 	}
 	return setFarction(tmp.molecular, tmp.denominator);
 }

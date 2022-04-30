@@ -15,6 +15,11 @@
 #include <sstream>
 #include <Windows.h>
 
+#define CLS		//北睲埃
+//#define OVERLOADING	//代刚overloading
+#define CALCULATOR
+#define FILL100 //干计100
+
 #define INPUT		"\n[Input] "
 #define RED			12
 #define WHITE		15

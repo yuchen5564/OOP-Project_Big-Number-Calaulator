@@ -14,6 +14,7 @@ Decimal::Decimal(const char* _in) {
 	BigN tmp;
 	string s(_in);
 	s = tmp.countValue(s);
+	//if (s.find(".") != string::npos) fill100(&s);
 	value = s;
 }
 
@@ -84,7 +85,10 @@ Decimal operator+(Integer s, Decimal d){
 
 Decimal operator-(Integer s, Decimal d){
 	string tmp;
-	tmp = sub(s.getValue(), d.value, 0);
+	//cout << d.value << endl;
+
+	tmp = sub(s.getValue(), d.value, 1);
+	//cout << tmp << endl;
 	return Decimal(tmp);
 }
 
@@ -108,6 +112,8 @@ istream& operator>>(istream& input, Decimal& s) {
 }
 
 ostream& operator<<(ostream& output, const Decimal& a) {
-	output << a.value;
+	string tmp = a.value;
+	if (a.value.find(".") != string::npos) fill100(&tmp);
+	output << tmp;
 	return output;
 }

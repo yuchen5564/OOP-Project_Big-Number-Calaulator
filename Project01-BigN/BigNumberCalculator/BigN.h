@@ -14,6 +14,8 @@ class BigN;
 class Integer;
 class Deciaml;
 
+void fill100(string* s);
+
 //紀錄變數struct
 typedef struct {
 	string dataType; //變數型態

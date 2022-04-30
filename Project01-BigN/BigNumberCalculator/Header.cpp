@@ -66,10 +66,13 @@ string splitString(string _in) {
 			if (_in[i] == '(') f = 1;
 			else f = 0;
 
-			//笿ゼ珹腹璽计ぃだ筳 --2022.04.25
-			if (_in[i] == '-' && !isdigit(_in[i - 1])) {
+			//笿ゼ珹腹璽计ぃだ筳 --2022.04.25	
+			//cout << _in[i] << endl;
+			if (_in[i] == '-' && !isdigit(_in[i-1]) && !isalpha(_in[i-1])) {
+				//cout << ".\n";
 				continue;
 			}
+			
 
 			_in.insert(i, " ");
 			i++;
@@ -173,6 +176,7 @@ string infix2posfix(string _infix) {
 		result =  postfix.top() + ' ' + result;
 		postfix.pop();
 	}
+	//cout << result << endl;
 	return result;
 }
 
@@ -318,6 +322,8 @@ string add(string s1, string s2) {
 
 //矪柑计场だ(yuchen @ 2022.04.20)
 string sub(string s1, string s2, int f) {
+	s1 = clear0(s1);
+	s2 = clear0(s2);
 	string result = {};
 	bool sign = 0;
 	if (s1[0] == '-' && s2[0] != '-') {
@@ -381,7 +387,8 @@ string sub(string s1, string s2, int f) {
 
 //矪柑计场だ(yuchen @ 2022.04.20)
 string multi(string s1, string s2) {
-
+	s1 = clear0(s1);
+	s2 = clear0(s2);
 	bool sign = 0;
 	if (s1[0] == '-' && s2[0] != '-') {
 		sign = 1;
@@ -418,7 +425,7 @@ string multi(string s1, string s2) {
 			tmp[i + j + 1] += (s1[j] - '0') * (s2[i] - '0');
 		}
 	}
-
+	
 	//矪瞶秈
 	int carry = 0;
 	for (int i = len1 + len2 - 1; i >= 0; i--) {
@@ -437,8 +444,8 @@ string multi(string s1, string s2) {
 	for (int i = 0; i < len1 + len2; i++) {
 		result = result + (char)(tmp[i] + '0');
 	}
-	result = clear0(result);
-
+	//result = clear0(result);
+	
 	//计翴
 	if (dec != 0) {
 		int len = result.length();
