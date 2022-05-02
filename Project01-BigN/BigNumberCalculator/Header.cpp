@@ -626,7 +626,7 @@ string divide(string s1, string s2)
 //階乘(暴力解) --> TLE?快速算法?
 //2022.04.21 [測試] 3000! 45s; 5000! 3min20s
 string fac(string s1) {
-	if (s1 == "0") return "1"; //2022.04.22 [新增] 0!定義
+	/*if (s1 == "0") return "1"; //2022.04.22 [新增] 0!定義
 	if (s1 == "1") return "1"; //2022.04.24 [修正] 1!無窮迴圈
 	string result = s1;
 	s1 = sub(s1, "1", 1);
@@ -634,7 +634,50 @@ string fac(string s1) {
 		result = multi(result, s1);
 		s1 = sub(s1, "1", 1);
 	}
+	return result;*/
+	long long a[100000];
+	string result;
+	int i, j, n, m = 0; //m與切片有關,c與進位有關 
+	long long c;     //當C>0時,即代表進位 
+	a[0] = 1;        //不要忘記，0！ = 1 
+	n = stoll (s1);
+	for (i = 1; i <= n; i++)
+	{
+		c = 0;
+		for (j = 0; j <= m; j++)
+		{
+			a[j] = a[j] * i + c;
+			c = a[j] / 100000000;
+			a[j] = a[j] % 100000000;
+		}
+		if (c > 0)
+		{
+			m++;
+			a[m] = c;
+		}
+	}
+	/*for (int i = 0; i < m; i++) {
+		cout << a[i] << endl;
+	}*/
+	result = to_string(a[m]);
+	//printf("%lld", a[m]);   //先輸出首位 
+	for (i = m - 1; i >= 0; i--)
+	{
+		//printf("%08lld", a[i]);  //不足指定寬度前面補零 
+		string tmp = to_string(a[i]);
+		//cout << tmp << endl;
+		int len = tmp.length();
+		if (len < 8) {
+			for (int j = 0; j < 8-len; j++) {
+				tmp = '0' + tmp;
+			}
+			
+		}
+		//cout << tmp << endl;
+		result = result + tmp;
+	}
 	return result;
+	//return "-";
 }
 
 
