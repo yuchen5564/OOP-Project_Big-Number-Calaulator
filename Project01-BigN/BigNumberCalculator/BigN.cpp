@@ -401,27 +401,28 @@ string BigN::countValue(string _in) {
 
 			//獶だ计
 			if (tmp.top().find("Farction") == string::npos) {
+				t = tmp.top();
 
 				//Τ瞷筁计翴
-				if (decPoint) {
-					t = tmp.top();
-					fill100(&t);
-					return t;
-				}
-				else {
-					return tmp.top();
-				}
+				if (decPoint) fill100(&t);
+				//セōΤ计翴
+				//else if (t.find(".") != string::npos) fill100(&t);
+				else checkInteger(&t);
+
+				return t;
 
 			}
 			//琌だ计
 			else {
 				Farction fa = findFarction(tmp.top());
+				//cout << ".\n" << endl;
 				t = divide(fa.molecular, fa.denominator);
 
 				//Τ瞷筁计翴
 				if (decPoint) fill100(&t);
 				//セōΤ计翴
-				else if (t.find(".") != string::npos) fill100(&t);
+				//else if (t.find(".") != string::npos) fill100(&t);
+				else checkInteger(&t);
 
 				return t;
 			}

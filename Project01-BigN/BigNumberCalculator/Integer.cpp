@@ -64,7 +64,7 @@ istream& operator>>(istream& input, Integer& s) {
 	return input;
 }
 
-ostream& operator<<(ostream& output, const Integer& a) {
+/*ostream& operator<<(ostream& output, const Integer& a) {
 	output << a.value;
 	return output;
-}
+}*/

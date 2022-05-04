@@ -32,10 +32,25 @@ int main() {
 
 	//´ú¸Õoperator overloading
 #ifdef OVERLOADING
-	cout << "\n===Test operator overloading===\n";
 	string num1 = "10.5", num2 = "45.65";
 	Integer i1 = num1, i2 = num2;
 	Decimal d1 = num1, d2 = num2;
+
+	cout << "\n===Test Inheritance Stack===\n\n";
+	stack<NumberObj> testStack;
+	testStack.push(i1);
+	testStack.push(i2);
+	testStack.push(d1);
+	testStack.push(d2);
+
+	while (!testStack.empty()) {
+		cout << testStack.top() << "\n";
+		testStack.pop();
+	}
+	cout << "\n";
+
+	cout << "\n===Test operator overloading===\n";
+	
 	cout << "\n[Number]\nnum1 = " << num1 << "\nnum2 = " << num2 << endl;
 	cout << "\n[Integer]\ni1 = " << i1 << "\ni2 = " << i2 << endl;
 	cout << "\n[Decimal]\nd1 = " << d1 << "\nd2 = " << d2 << endl;

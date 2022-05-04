@@ -13,6 +13,7 @@
 class BigN;
 class Integer;
 class Deciaml;
+class NumberObj;
 
 void fill100(string* s);
 
@@ -49,14 +50,26 @@ private:
 	unsigned int farctIndex = 0; //だ计璸计竟(㏑ノ)
 };
 
+class NumberObj {
+public:
+	friend ostream& operator<<(ostream& output, const NumberObj& a) {
+		string tmp = a.value;
+		if (a.value.find(".") != string::npos) fill100(&tmp);
+		output << tmp;
+		return output;
+	}
+	string getValue() { return this->value; }
+	string value;
+};
+
 //计class
-class Decimal {
+class Decimal : public NumberObj {
 public:
 	Decimal() { value = "0.0"; }
 	Decimal(string _in);
 	Decimal(const char* _in);
 
-	string getValue() { return this->value; }
+	//string getValue() { return this->value; }
 
 	Decimal& operator=(Decimal s);
 	Decimal& operator=(Integer s);
@@ -81,21 +94,21 @@ public:
 
 
 	friend istream& operator>>(istream& input, Decimal& s);
-	friend ostream& operator<<(ostream& output, const Decimal& a);
+	//friend ostream& operator<<(ostream& output, const Decimal& a);
 
 
 private:
-	string value;
+	//string value;
 };
 
 //俱计class
-class Integer {
+class Integer : public NumberObj {
 public:
 	Integer() { value = "0"; }
 	Integer(string _in);
 	Integer(const char* _in);
 
-	string getValue() { return this->value; }
+	//string getValue() { return this->value; }
 
 	Integer& operator=(Integer s);
 	Integer& operator=(Decimal d);
@@ -107,11 +120,11 @@ public:
 	Integer operator/(Integer s);
 
 	friend istream& operator>>(istream& input, Integer& s);
-	friend ostream& operator<<(ostream& output, const Integer& a);
+	//friend ostream& operator<<(ostream& output, const Integer& a);
 
 
 private:
-	string value;
+	//string value;
 };
 
 

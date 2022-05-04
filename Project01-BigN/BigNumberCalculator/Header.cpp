@@ -458,6 +458,7 @@ string multi(string s1, string s2) {
 }
 
 void checkInteger(string* s) {
+	//cout << *s << endl;
 	if (s->find(".") != string::npos) {
 		int pos = s->find(".");
 		s->erase(pos);

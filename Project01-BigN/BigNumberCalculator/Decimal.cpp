@@ -111,9 +111,9 @@ istream& operator>>(istream& input, Decimal& s) {
 	return input;
 }
 
-ostream& operator<<(ostream& output, const Decimal& a) {
+/*ostream& operator<<(ostream& output, const Decimal& a) {
 	string tmp = a.value;
 	if (a.value.find(".") != string::npos) fill100(&tmp);
 	output << tmp;
 	return output;
-}
+}*/
