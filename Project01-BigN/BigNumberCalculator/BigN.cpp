@@ -372,6 +372,7 @@ string BigN::countValue(string _in) {
 						//找到
 						if (s == i->name) {
 							s = i->value;
+							if (s.find(".") != string::npos) decPoint = 1;
 							flag = 1;
 							break;
 						}
@@ -454,49 +455,60 @@ void BigN::setVariale(string _in) {
 	if (tmp == "Set") { 
 
 		//接收其他資訊
+		
 		in >> tmp;
 		var.dataType = tmp;
 		in >> tmp;
-		var.name = tmp;
-		in >> tmp;
-
-		while (in >> tmp) {
-			value += (' ' + tmp);
+		if (tmp == "=") {
+			errorCode = 1;
+			ERROR("Please confirm the input!");
+		}
+		else {
+			var.name = tmp;
 		}
 
-		//型別正確
-		if (var.dataType == "Integer" || var.dataType == "Decimal") {
-			var.value = clear0(countValue(value)); //計算數值
+		if (!errorCode) {
+			in >> tmp;
 
-			if (var.value != "Error") {
-				
-				//去除不合型別的部分
-				if (var.dataType == "Integer") checkInteger(&var.value);
+			while (in >> tmp) {
+				value += (' ' + tmp);
+			}
 
-				//尋找是否已存在
-				bool find = 0;
-				vector<Variable>::iterator i;
+			//型別正確
+			if (var.dataType == "Integer" || var.dataType == "Decimal") {
+				var.value = clear0(countValue(value)); //計算數值
 
-				for (i = list.begin(); i != list.end(); i++) {
+				if (var.value != "Error") {
 
-					//有找到
-					if (var.name == i->name) {
-						i->dataType = var.dataType;
-						i->value = var.value;
-						find = 1;
+					//去除不合型別的部分
+					if (var.dataType == "Integer") checkInteger(&var.value);
+
+					//尋找是否已存在
+					bool find = 0;
+					vector<Variable>::iterator i;
+
+					for (i = list.begin(); i != list.end(); i++) {
+
+						//有找到
+						if (var.name == i->name) {
+							i->dataType = var.dataType;
+							i->value = var.value;
+							find = 1;
+						}
+
 					}
 
+					//未找到
+					if (!find) list.push_back(var);
 				}
-
-				//未找到
-				if (!find) list.push_back(var);
+			}
+			//有錯誤
+			else {
+				errorCode = 1;
+				ERROR("Data type not found!");
 			}
 		}
-		//有錯誤
-		else {
-			errorCode = 1;
-			ERROR("Data type not found!");
-		}
+		
 
 	}
 	//輸入: A = 10 + 5 || A = A + A
